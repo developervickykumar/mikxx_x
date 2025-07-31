@@ -1,0 +1,1 @@
+<input type="number" min="1" max="5" class="form-control" name="{{ $fieldName }}" value="{{ $fieldValue }}">

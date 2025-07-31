@@ -1,0 +1,1 @@
+public function method() { return view('dynamic.pages.slug'); }

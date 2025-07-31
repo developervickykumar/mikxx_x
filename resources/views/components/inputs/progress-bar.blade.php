@@ -1,0 +1,1 @@
+<div class="progress"><div class="progress-bar" role="progressbar" style="width: {{ $fieldValue }}%;">{{ $fieldValue }}%</div></div>

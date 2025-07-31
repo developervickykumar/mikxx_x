@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classiffied - Create Ad</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--dark-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .menu-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.2rem;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .image-uploader {
+            border: 2px dashed #ddd;
+            padding: 30px;
+            text-align: center;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        
+        .uploader-icon {
+            font-size: 2rem;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .image-item {
+            position: relative;
+            height: 100px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                width: 250px;
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">Classi<span>ffied</span></div>
+        </div>
+        <div class="sidebar-menu">
+            <a href="admin-dashboard.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="admin-my-ads.html" class="menu-item">
+                <i class="fas fa-list-alt"></i>
+                <span>My Ads</span>
+            </a>
+            <a href="admin-create-ad.html" class="menu-item active">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Ad</span>
+            </a>
+            <a href="admin-performance.html" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Performance</span>
+            </a>
+            <a href="admin-inquiries.html" class="menu-item">
+                <i class="fas fa-comment-alt"></i>
+                <span>Inquiries</span>
+            </a>
+            <a href="admin-boost-ads.html" class="menu-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Boost Ads</span>
+            </a>
+            <a href="admin-ad-expiry.html" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Ad Expiry</span>
+            </a>
+            <a href="admin-comments.html" class="menu-item">
+                <i class="fas fa-comment"></i>
+                <span>Comments</span>
+            </a>
+            <a href="admin-media-library.html" class="menu-item">
+                <i class="fas fa-images"></i>
+                <span>Media Library</span>
+            </a>
+            <a href="admin-chat-settings.html" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span>Chat Settings</span>
+            </a>
+            <a href="admin-settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="User-Classified.html" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <button class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                </div>
+                <div class="user-name">John Smith</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Create New Classified Ad</h2>
+                <div>
+                    <button class="btn btn-outline" onclick="saveAsDraft()">Save as Draft</button>
+                    <button class="btn btn-primary" onclick="previewAd()">Preview</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="createAdForm">
+                    <div class="form-group">
+                        <label for="adTitle">Title *</label>
+                        <input type="text" id="adTitle" placeholder="What are you selling?" required>
+                        <small style="color: #777;">Be specific and include key details that buyers might search for.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adCategory">Category *</label>
+                        <select id="adCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="vehicles">Vehicles</option>
+                            <option value="real-estate">Real Estate</option>
+                            <option value="electronics">Electronics</option>
+                            <option value="furniture">Furniture</option>
+                            <option value="fashion">Fashion</option>
+                            <option value="jobs">Jobs</option>
+                            <option value="services">Services</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adSubcategory">Subcategory</label>
+                        <select id="adSubcategory">
+                            <option value="">Select Subcategory</option>
+                            <!-- Subcategories will be populated dynamically based on selected category -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adPrice">Price *</label>
+                        <input type="text" id="adPrice" placeholder="Enter price (e.g. 100, 1500, etc.)" required>
+                        <div style="display: flex; align-items: center; margin-top: 10px;">
+                            <input type="checkbox" id="negotiable" style="width: auto; margin-right: 5px;">
+                            <label for="negotiable" style="display: inline;">Price Negotiable</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adCondition">Condition</label>
+                        <select id="adCondition">
+                            <option value="">Select Condition</option>
+                            <option value="new">New</option>
+                            <option value="like-new">Like New</option>
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="salvage">For Parts or Not Working</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adDescription">Description *</label>
+                        <textarea id="adDescription" placeholder="Describe your item in detail..." required></textarea>
+                        <small style="color: #777;">Include features, specifications, condition, reason for selling, etc. The more details, the better!</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Media Upload *</label>
+                        <div class="image-uploader">
+                            <div class="uploader-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <p>Drop your images here or <span style="color: var(--primary-color); cursor: pointer;">browse</span></p>
+                            <p style="font-size: 0.8rem; color: #777; margin-top: 5px;">Up to 10 images, max 5MB each. First image will be the cover photo.</p>
+                            <input type="file" id="media-upload" multiple style="display: none;">
+                        </div>
+                        <div class="image-grid">
+                            <div class="image-item">
+                                <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Ad Image">
+                                <div class="image-remove"><i class="fas fa-times"></i></div>
+                            </div>
+                            <div class="image-item">
+                                <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" alt="Ad Image">
+                                <div class="image-remove"><i class="fas fa-times"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adLocation">Location *</label>
+                        <input type="text" id="adLocation" placeholder="City, State" required>
+                        <small style="color: #777;">Enter your city or neighborhood to help local buyers find your ad.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adTags">Tags (Comma separated)</label>
+                        <input type="text" id="adTags" placeholder="e.g. vintage, wood, handmade">
+                        <small style="color: #777;">Add relevant tags to make your ad more discoverable in searches.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Ad Status</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="statusActive" name="adStatus" value="active" checked>
+                                <label for="statusActive">Active (Publish Now)</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="statusDraft" name="adStatus" value="draft">
+                                <label for="statusDraft">Draft (Save for Later)</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="statusSchedule" name="adStatus" value="schedule">
+                                <label for="statusSchedule">Schedule</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="scheduleGroup" style="display: none;">
+                        <label for="scheduleDate">Publication Date</label>
+                        <input type="datetime-local" id="scheduleDate">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adExpiry">Expiry Date</label>
+                        <input type="date" id="adExpiry">
+                        <small style="color: #777;">Your ad will automatically expire on this date. Default is 30 days from publication.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Boost Ad (Premium Features)</label>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="boostNo" name="adBoost" value="no" checked>
+                                <label for="boostNo">No Boost</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="boostFeatured" name="adBoost" value="featured">
+                                <label for="boostFeatured">Featured ($5/week)</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="boostUrgent" name="adBoost" value="urgent">
+                                <label for="boostUrgent">Urgent ($3/week)</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="boostHighlight" name="adBoost" value="highlight">
+                                <label for="boostHighlight">Highlight ($2/week)</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Contact Preferences</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: center;">
+                                <input type="checkbox" id="contactPhone" style="width: auto; margin-right: 5px;" checked>
+                                <label for="contactPhone" style="display: inline;">Allow Phone Calls</label>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <input type="checkbox" id="contactMessage" style="width: auto; margin-right: 5px;" checked>
+                                <label for="contactMessage" style="display: inline;">Allow Messages</label>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <input type="checkbox" id="hideEmail" style="width: auto; margin-right: 5px;">
+                                <label for="hideEmail" style="display: inline;">Hide Email Address</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adContact">Contact Phone Number</label>
+                        <input type="text" id="adContact" placeholder="Phone number">
+                    </div>
+                    
+                    <div style="margin-top: 30px; text-align: center;">
+                        <button type="button" class="btn btn-outline" style="margin-right: 10px;" onclick="window.location.href='admin-my-ads.html'">Cancel</button>
+                        <button type="button" class="btn btn-outline" style="margin-right: 10px;" onclick="saveAsDraft()">Save Draft</button>
+                        <button type="submit" class="btn btn-primary">Publish Ad</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Menu item click
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't prevent default - let the href navigate
+                
+                // Remove active class from all menu items
+                document.querySelectorAll('.menu-item').forEach(mi => {
+                    mi.classList.remove('active');
+                });
+                
+                // Add active class to clicked menu item
+                this.classList.add('active');
+            });
+        });
+        
+        // Set active menu item based on current page
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const itemPage = item.getAttribute('href');
+                if (itemPage === currentPage) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Set default expiry date (30 days from now)
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
+            document.getElementById('adExpiry').valueAsDate = expiryDate;
+        });
+        
+        // Toggle schedule date field visibility
+        document.querySelectorAll('input[name="adStatus"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const scheduleGroup = document.getElementById('scheduleGroup');
+                if (this.value === 'schedule') {
+                    scheduleGroup.style.display = 'block';
+                } else {
+                    scheduleGroup.style.display = 'none';
+                }
+            });
+        });
+        
+        // Image uploader functionality
+        document.querySelector('.image-uploader').addEventListener('click', function() {
+            document.getElementById('media-upload').click();
+        });
+        
+        document.getElementById('media-upload').addEventListener('change', function() {
+            // In a real app, you would handle file uploads here
+            const files = this.files;
+            console.log('Files selected:', files.length);
+            // For demo purposes, we'll just add a placeholder
+            if (files.length > 0) {
+                const imageGrid = document.querySelector('.image-grid');
+                const newImage = document.createElement('div');
+                newImage.className = 'image-item';
+                newImage.innerHTML = `
+                    <img src="https://via.placeholder.com/100" alt="Ad Image">
+                    <div class="image-remove"><i class="fas fa-times"></i></div>
+                `;
+                imageGrid.appendChild(newImage);
+                
+                // Add event listener to remove button
+                newImage.querySelector('.image-remove').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    imageGrid.removeChild(newImage);
+                });
+            }
+        });
+        
+        // Remove image functionality
+        document.querySelectorAll('.image-remove').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.closest('.image-item').remove();
+            });
+        });
+        
+        // Category-based subcategory population
+        document.getElementById('adCategory').addEventListener('change', function() {
+            const subcategorySelect = document.getElementById('adSubcategory');
+            subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+            
+            // Define subcategories for each category
+            const subcategories = {
+                'vehicles': ['Cars', 'Trucks', 'Motorcycles', 'RVs', 'Boats', 'Parts & Accessories'],
+                'real-estate': ['Apartments for Rent', 'Houses for Sale', 'Vacation Rentals', 'Commercial', 'Land'],
+                'electronics': ['Cell Phones', 'Computers', 'TVs', 'Audio Equipment', 'Cameras', 'Video Games'],
+                'furniture': ['Sofas', 'Beds', 'Tables', 'Chairs', 'Dressers', 'Outdoor Furniture'],
+                'fashion': ['Men\'s Clothing', 'Women\'s Clothing', 'Jewelry', 'Shoes', 'Accessories', 'Bags'],
+                'jobs': ['Full-time', 'Part-time', 'Contract', 'Internship', 'Gig Work'],
+                'services': ['Home Services', 'Professional Services', 'Lessons', 'Events', 'Childcare'],
+                'other': ['Pets', 'Toys & Games', 'Books', 'Sports', 'Antiques', 'Musical Instruments']
+            };
+            
+            // Add subcategories to select
+            const selectedCategory = this.value;
+            if (selectedCategory && subcategories[selectedCategory]) {
+                subcategories[selectedCategory].forEach(subcategory => {
+                    const option = document.createElement('option');
+                    option.value = subcategory.toLowerCase().replace(/\s+/g, '-');
+                    option.textContent = subcategory;
+                    subcategorySelect.appendChild(option);
+                });
+            }
+        });
+        
+        // Form submission
+        document.getElementById('createAdForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            const title = document.getElementById('adTitle').value;
+            const category = document.getElementById('adCategory').value;
+            const price = document.getElementById('adPrice').value;
+            const description = document.getElementById('adDescription').value;
+            const location = document.getElementById('adLocation').value;
+            
+            if (!title || !category || !price || !description || !location) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            // In a real app, you would submit the form data to an API
+            console.log('Form submitted');
+            
+            // Show success message and redirect
+            alert('Ad published successfully!');
+            window.location.href = 'admin-my-ads.html';
+        });
+        
+        // Save as draft functionality
+        function saveAsDraft() {
+            // In a real app, you would save the form data as a draft
+            console.log('Saving as draft');
+            alert('Ad saved as draft');
+            // Optionally redirect or stay on page
+        }
+        
+        // Preview functionality
+        function previewAd() {
+            // In a real app, you would show a preview of the ad
+            console.log('Previewing ad');
+            alert('This feature would show a preview of your ad before publishing');
+        }
+    </script>
+</body>
+</html> 

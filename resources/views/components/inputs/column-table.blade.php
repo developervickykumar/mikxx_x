@@ -1,0 +1,1 @@
+<textarea class="form-control" readonly placeholder="Column table UI..."></textarea>

@@ -1,0 +1,1 @@
+<!-- Slider + result preview -->

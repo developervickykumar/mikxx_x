@@ -1,0 +1,35 @@
+// Colors
+$primary: #3498db;
+$secondary: #2ecc71;
+$success: #27ae60;
+$info: #3498db;
+$warning: #f1c40f;
+$danger: #e74c3c;
+$light: #f8f9fa;
+$dark: #343a40;
+
+// Typography
+$font-family-base: 'Inter', sans-serif;
+$font-size-base: 1rem;
+$line-height-base: 1.5;
+
+// Spacing
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: $spacer * .25,
+  2: $spacer * .5,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3,
+);
+
+// Breakpoints
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px
+); 

@@ -1,0 +1,1 @@
+<input type="range" class="form-range" name="{{ $fieldName }}" value="{{ $fieldValue }}">

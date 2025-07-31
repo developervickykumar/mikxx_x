@@ -1,0 +1,363 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\FormFieldCategory;
+use App\Models\FormFieldType;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
+
+class FormFieldCategoryAndTypeSeeder extends Seeder
+{
+    public function run()
+    {
+        $categories = [
+            [
+                'name' => 'Basic Input Fields',
+                'fields' => [
+                    ['name' => 'Text', 'component_name' => 'text-input'],
+                    ['name' => 'Email', 'component_name' => 'email-input'],
+                    ['name' => 'Contact Number', 'component_name' => 'phone-input'],
+                    ['name' => 'Password', 'component_name' => 'password-input'],
+                    ['name' => 'URL', 'component_name' => 'url-input'],
+                    ['name' => 'Number', 'component_name' => 'number-input'],
+                    ['name' => 'Decimal', 'component_name' => 'decimal-input'],
+                    ['name' => 'Textarea', 'component_name' => 'textarea'],
+                    ['name' => 'Hidden Field', 'component_name' => 'hidden-field'],
+                    ['name' => 'Readonly Field', 'component_name' => 'readonly-field'],
+                    ['name' => 'Disabled Field', 'component_name' => 'disabled-field'],
+                    ['name' => 'Auto-Fill', 'component_name' => 'auto-fill']
+                ]
+            ],
+            [
+                'name' => 'Choice Selectors',
+                'fields' => [
+                    ['name' => 'Dropdown', 'component_name' => 'select'],
+                    ['name' => 'MultiSelect', 'component_name' => 'multiselect'],
+                    ['name' => 'Radio Button', 'component_name' => 'radio'],
+                    ['name' => 'Checkbox', 'component_name' => 'checkbox'],
+                    ['name' => 'Checkbox Group', 'component_name' => 'checkbox-group'],
+                    ['name' => 'Chip View', 'component_name' => 'chip-view'],
+                    ['name' => 'Toggle Switch', 'component_name' => 'toggle-switch'],
+                    ['name' => 'Button Group', 'component_name' => 'button-group'],
+                    ['name' => 'Expandable Dropdown', 'component_name' => 'expandable-dropdown'],
+                    ['name' => 'Icon Dropdown', 'component_name' => 'icon-dropdown'],
+                    ['name' => 'Checkbox Dropdown', 'component_name' => 'checkbox-dropdown']
+                ]
+            ],
+            [
+                'name' => 'Date & Time',
+                'fields' => [
+                    ['name' => 'Date', 'component_name' => 'date'],
+                    ['name' => 'Date & Time', 'component_name' => 'datetime'],
+                    ['name' => 'Time', 'component_name' => 'time'],
+                    ['name' => 'Timer', 'component_name' => 'timer'],
+                    ['name' => 'Date Range', 'component_name' => 'date-range'],
+                    ['name' => 'Last Date', 'component_name' => 'last-date'],
+                    ['name' => 'Previous Date', 'component_name' => 'previous-date'],
+                    ['name' => 'Date Reservation', 'component_name' => 'date-reservation'],
+                    ['name' => 'Countdown Picker', 'component_name' => 'countdown-picker']
+                ]
+            ],
+            [
+                'name' => 'Media Upload & Attachments',
+                'fields' => [
+                    ['name' => 'Image', 'component_name' => 'image-upload'],
+                    ['name' => 'File', 'component_name' => 'file-upload'],
+                    ['name' => 'Video', 'component_name' => 'video-upload'],
+                    ['name' => 'Logo', 'component_name' => 'logo-upload'],
+                    ['name' => 'Banner', 'component_name' => 'banner-upload'],
+                    ['name' => 'Album', 'component_name' => 'album-upload'],
+                    ['name' => 'Gallery Upload', 'component_name' => 'gallery-upload'],
+                    ['name' => 'Presentation', 'component_name' => 'presentation-upload'],
+                    ['name' => 'Attach Document', 'component_name' => 'document-upload']
+                ]
+            ],
+            [
+                'name' => 'Tables & Grid Controls',
+                'fields' => [
+                    ['name' => 'Table', 'component_name' => 'table'],
+                    ['name' => 'Table Checkbox', 'component_name' => 'table-checkbox'],
+                    ['name' => 'Column Table', 'component_name' => 'column-table'],
+                    ['name' => 'Checkbox Row Table', 'component_name' => 'checkbox-row-table'],
+                    ['name' => 'Checkbox Column Table', 'component_name' => 'checkbox-column-table'],
+                    ['name' => 'Data Grid', 'component_name' => 'data-grid'],
+                    ['name' => 'Dynamic Textbox Grid', 'component_name' => 'dynamic-textbox-grid'],
+                    ['name' => 'Orderable List', 'component_name' => 'orderable-list'],
+                    ['name' => 'MultiSelect Grid', 'component_name' => 'multiselect-grid']
+                ]
+            ],
+            [
+                'name' => 'Sliders & Range Inputs',
+                'fields' => [
+                    ['name' => 'Range', 'component_name' => 'range'],
+                    ['name' => 'Range Slider', 'component_name' => 'range-slider'],
+                    ['name' => 'Sliders with Result', 'component_name' => 'slider-with-result'],
+                    ['name' => 'Rating', 'component_name' => 'rating'],
+                    ['name' => 'Progress Bar', 'component_name' => 'progress-bar']
+                ]
+            ],
+            [
+                'name' => 'Editor & Text Enhancement',
+                'fields' => [
+                    ['name' => 'Text Editor', 'component_name' => 'text-editor'],
+                    ['name' => 'Scrollable Description', 'component_name' => 'scrollable-description'],
+                    ['name' => 'Code Editor', 'component_name' => 'code-editor'],
+                    ['name' => 'Markdown Editor', 'component_name' => 'markdown-editor'],
+                    ['name' => 'Rich Text with Image', 'component_name' => 'rich-text-with-image']
+                ]
+            ],
+            [
+                'name' => 'Grouped Entry & Repeater Fields',
+                'fields' => [
+                    ['name' => 'Multiple Text Fields', 'component_name' => 'multiple-text-fields'],
+                    ['name' => 'Checklist', 'component_name' => 'checklist'],
+                    ['name' => 'Add More', 'component_name' => 'add-more'],
+                    ['name' => 'Section Split', 'component_name' => 'section-split'],
+                    ['name' => 'Nested Groups', 'component_name' => 'nested-groups'],
+                    ['name' => 'Dynamic Key-Value Pair', 'component_name' => 'key-value-pair']
+                ]
+            ],
+            [
+                'name' => 'Display & Layout Controls',
+                'fields' => [
+                    ['name' => 'Title/Heading', 'component_name' => 'heading'],
+                    ['name' => 'Divider Line', 'component_name' => 'divider'],
+                    ['name' => 'Tooltip Icon', 'component_name' => 'tooltip-icon'],
+                    ['name' => 'Description Note', 'component_name' => 'description-note'],
+                    ['name' => 'Collapsible Group', 'component_name' => 'collapsible-group'],
+                    ['name' => 'Tabs', 'component_name' => 'tabs'],
+                    ['name' => 'Vertical Tabs', 'component_name' => 'vertical-tabs']
+                ]
+            ],
+            [
+                'name' => 'Visual Design Elements',
+                'fields' => [
+                    ['name' => 'Color Picker', 'component_name' => 'color-picker'],
+                    ['name' => 'Icon Picker', 'component_name' => 'icon-picker'],
+                    ['name' => 'Image Selector', 'component_name' => 'image-selector'],
+                    ['name' => 'Badge Display', 'component_name' => 'badge-display'],
+                    ['name' => 'Label Tag', 'component_name' => 'label-tag'],
+                    ['name' => 'Theme Class Selector', 'component_name' => 'theme-class-selector']
+                ]
+            ],
+            [
+                'name' => 'Conditional Logic & Behavior',
+                'fields' => [
+                    ['name' => 'Show/Hide Based on Condition', 'component_name' => 'condition-show-hide'],
+                    ['name' => 'Enable/Disable Toggle', 'component_name' => 'condition-enable-disable'],
+                    ['name' => 'Visibility Based on Role', 'component_name' => 'role-visibility'],
+                    ['name' => 'Field Dependency', 'component_name' => 'field-dependency'],
+                    ['name' => 'Group Visibility Toggle', 'component_name' => 'group-visibility'],
+                    ['name' => 'Required If Selected', 'component_name' => 'required-if-selected'],
+                    ['name' => 'Field Matching', 'component_name' => 'field-matching']
+                ]
+            ],
+            [
+                'name' => 'Calculated & Formula Fields',
+                'fields' => [
+                    ['name' => 'Apply Formula', 'component_name' => 'apply-formula'],
+                    ['name' => 'Price x Quantity', 'component_name' => 'price-quantity'],
+                    ['name' => 'Auto Total', 'component_name' => 'auto-total'],
+                    ['name' => 'Custom Expression', 'component_name' => 'custom-expression'],
+                    ['name' => 'Tax & Discount Logic', 'component_name' => 'tax-discount']
+                ]
+            ],
+            [
+                'name' => 'User Actions & Call to Action',
+                'fields' => [
+                    ['name' => 'Vote Me', 'component_name' => 'vote-me'],
+                    ['name' => 'Follow Me', 'component_name' => 'follow-me'],
+                    ['name' => 'Contact Me', 'component_name' => 'contact-me'],
+                    ['name' => 'Call Me', 'component_name' => 'call-me'],
+                    ['name' => 'DM Me', 'component_name' => 'dm-me'],
+                    ['name' => 'Apply Now', 'component_name' => 'apply-now'],
+                    ['name' => 'Book Now', 'component_name' => 'book-now'],
+                    ['name' => 'Share Now', 'component_name' => 'share-now'],
+                    ['name' => 'Review Me', 'component_name' => 'review-me'],
+                    ['name' => 'Rate Me', 'component_name' => 'rate-me']
+                ]
+            ],
+            // Continue with other categories...
+            [
+                'name' => 'Booking & Seat Specific Fields',
+                'fields' => [
+                    ['name' => 'Seat Type Selector', 'component_name' => 'seat-type-selector'],
+                    ['name' => 'Bed Type', 'component_name' => 'bed-type'],
+                    ['name' => 'Round Seating', 'component_name' => 'round-seating'],
+                    ['name' => 'U-Shape Seating', 'component_name' => 'u-shape-seating'],
+                    ['name' => 'Bus Seat Layout', 'component_name' => 'bus-seat-layout'],
+                    ['name' => 'Stall Type', 'component_name' => 'stall-type']
+                ]
+            ],
+            [
+                'name' => 'Payment & Transaction',
+                'fields' => [
+                    ['name' => 'Price', 'component_name' => 'price'],
+                    ['name' => 'Tax', 'component_name' => 'tax'],
+                    ['name' => 'Discount', 'component_name' => 'discount'],
+                    ['name' => 'Currency Selector', 'component_name' => 'currency-selector'],
+                    ['name' => 'Payment Method', 'component_name' => 'payment-method'],
+                    ['name' => 'Invoice Generator', 'component_name' => 'invoice-generator']
+                ]
+            ],
+            [
+                'name' => 'Identity & Personal Info',
+                'fields' => [
+                    ['name' => 'Name', 'component_name' => 'name-input'],
+                    ['name' => 'Age', 'component_name' => 'age-input'],
+                    ['name' => 'Gender', 'component_name' => 'gender-select'],
+                    ['name' => 'DOB', 'component_name' => 'dob-picker'],
+                    ['name' => 'Nationality', 'component_name' => 'nationality-select'],
+                    ['name' => 'Religion', 'component_name' => 'religion-select'],
+                    ['name' => 'ID Proof Upload', 'component_name' => 'id-proof-upload'],
+                    ['name' => 'Profile Picture', 'component_name' => 'profile-picture']
+                ]
+            ],
+            [
+                'name' => 'Advanced Logic & Development Tools',
+                'fields' => [
+                    ['name' => 'Hidden Field', 'component_name' => 'hidden-field-dev'],
+                    ['name' => 'Developer Note', 'component_name' => 'developer-note'],
+                    ['name' => 'Field ID', 'component_name' => 'field-id'],
+                    ['name' => 'API Bindable Input', 'component_name' => 'api-bindable-input'],
+                    ['name' => 'Module Linker', 'component_name' => 'module-linker'],
+                    ['name' => 'Embed External Script', 'component_name' => 'embed-script']
+                ]
+            ],
+            [
+                'name' => 'Signature & Agreement',
+                'fields' => [
+                    ['name' => 'Digital Signature', 'component_name' => 'digital-signature'],
+                    ['name' => 'Terms Agreement Checkbox', 'component_name' => 'terms-agreement'],
+                    ['name' => 'Policy Consent Block', 'component_name' => 'policy-consent']
+                ]
+            ],
+            [
+                'name' => 'Miscellaneous',
+                'fields' => [
+                    ['name' => 'Tags Input', 'component_name' => 'tags-input'],
+                    ['name' => 'Barcode', 'component_name' => 'barcode'],
+                    ['name' => 'QR Code Field', 'component_name' => 'qr-code'],
+                    ['name' => 'Auto Generate Slug', 'component_name' => 'auto-slug'],
+                    ['name' => 'Unique Code Generator', 'component_name' => 'unique-code'],
+                    ['name' => 'Referral Code Field', 'component_name' => 'referral-code'],
+                    ['name' => 'Instruction Stepper', 'component_name' => 'instruction-stepper'],
+                    ['name' => 'OTP Field', 'component_name' => 'otp-field']
+                ]
+            ],
+            [
+                'name' => 'Search & Tagging',
+                'fields' => [
+                    ['name' => 'User Search', 'component_name' => 'user-search'],
+                    ['name' => 'Business Search', 'component_name' => 'business-search'],
+                    ['name' => 'Product Search', 'component_name' => 'product-search'],
+                    ['name' => 'Tag User', 'component_name' => 'tag-user'],
+                    ['name' => 'Assign Task', 'component_name' => 'assign-task']
+                ]
+            ],
+            [
+                'name' => 'Special Form Types',
+                'fields' => [
+                    ['name' => 'Poll', 'component_name' => 'poll'],
+                    ['name' => 'Survey', 'component_name' => 'survey'],
+                    ['name' => 'Quiz', 'component_name' => 'quiz'],
+                    ['name' => 'Rating Form', 'component_name' => 'rating-form'],
+                    ['name' => 'Feedback Form', 'component_name' => 'feedback-form'],
+                    ['name' => 'Review Block', 'component_name' => 'review-block'],
+                    ['name' => 'Complaint Submission', 'component_name' => 'complaint-submission']
+                ]
+            ],
+            [
+                'name' => 'UI Preferences & Extras',
+                'fields' => [
+                    ['name' => 'Enable Duplicate', 'component_name' => 'enable-duplicate'],
+                    ['name' => 'Enable Add More', 'component_name' => 'enable-add-more'],
+                    ['name' => 'Attach File Option', 'component_name' => 'attach-file-option'],
+                    ['name' => 'Add Image Option', 'component_name' => 'add-image-option'],
+                    ['name' => 'Display in Multiple Columns', 'component_name' => 'multi-column-display']
+                ]
+            ],
+            [
+                'name' => 'Communication & Verification',
+                'fields' => [
+                    ['name' => 'OTP Verification', 'component_name' => 'otp-verification'],
+                    ['name' => 'Email Verification', 'component_name' => 'email-verification'],
+                    ['name' => 'Mobile Verification', 'component_name' => 'mobile-verification'],
+                    ['name' => 'CAPTCHA', 'component_name' => 'captcha'],
+                    ['name' => 'Consent Checkbox', 'component_name' => 'consent-checkbox']
+                ]
+            ],
+            [
+                'name' => 'Location & Map',
+                'fields' => [
+                    ['name' => 'Address Autocomplete', 'component_name' => 'address-autocomplete'],
+                    ['name' => 'Google Map Picker', 'component_name' => 'map-picker'],
+                    ['name' => 'Location Coordinates', 'component_name' => 'location-coordinates'],
+                    ['name' => 'Region Dropdown', 'component_name' => 'region-dropdown'],
+                    ['name' => 'Country-State-City Selector', 'component_name' => 'country-state-city']
+                ]
+            ],
+            [
+                'name' => 'Commerce & Checkout Enhancers',
+                'fields' => [
+                    ['name' => 'Cart Preview', 'component_name' => 'cart-preview'],
+                    ['name' => 'Product Image Upload', 'component_name' => 'product-image-upload'],
+                    ['name' => 'SKU Code', 'component_name' => 'sku-code'],
+                    ['name' => 'HSN Code', 'component_name' => 'hsn-code'],
+                    ['name' => 'Shipping Address Toggle', 'component_name' => 'shipping-address-toggle'],
+                    ['name' => 'Billing Address Toggle', 'component_name' => 'billing-address-toggle'],
+                    ['name' => 'Invoice Preview', 'component_name' => 'invoice-preview'],
+                    ['name' => 'Currency Switcher', 'component_name' => 'currency-switcher'],
+                    ['name' => 'Payment Confirmation Toggle', 'component_name' => 'payment-confirmation']
+                ]
+            ],
+            [
+                'name' => 'Travel, Hotel & Ticketing',
+                'fields' => [
+                    ['name' => 'Travel Type Selector', 'component_name' => 'travel-type-selector'],
+                    ['name' => 'Departure & Arrival Location', 'component_name' => 'departure-arrival'],
+                    ['name' => 'Check-in/Check-out Dates', 'component_name' => 'checkin-checkout'],
+                    ['name' => 'Passenger Details Block', 'component_name' => 'passenger-details'],
+                    ['name' => 'Room Type Selector', 'component_name' => 'room-type-selector'],
+                    ['name' => 'Flight Class Selector', 'component_name' => 'flight-class-selector'],
+                    ['name' => 'Seat Map Embed', 'component_name' => 'seat-map-embed']
+                ]
+            ],
+            [
+                'name' => 'Logistics / Delivery Specific',
+                'fields' => [
+                    ['name' => 'Pickup Address', 'component_name' => 'pickup-address'],
+                    ['name' => 'Drop Address', 'component_name' => 'drop-address'],
+                    ['name' => 'Pincode Checker', 'component_name' => 'pincode-checker'],
+                    ['name' => 'Delivery Mode Selector', 'component_name' => 'delivery-mode-selector'],
+                    ['name' => 'Courier Partner Dropdown', 'component_name' => 'courier-partner-dropdown'],
+                    ['name' => 'Estimated Delivery Time', 'component_name' => 'estimated-delivery-time']
+                ]
+            ]
+        ];
+        
+        foreach ($categories as $index => $categoryData) {
+            $category = FormFieldCategory::create([
+                'name' => $categoryData['name'],
+                'slug' => Str::slug($categoryData['name']),
+                'display_order' => $index + 1
+            ]);
+            
+            foreach ($categoryData['fields'] as $fieldIndex => $field) {
+                FormFieldType::create([
+                    'category_id' => $category->id,
+                    'name' => $field['name'],
+                    'slug' => Str::slug($field['name']),
+                    'component_name' => $field['component_name'],
+                    'description' => "A {$field['name']} field for forms",
+                    'default_config' => [
+                        'class' => 'form-control',
+                        'style' => 'width: 100%'
+                    ],
+                    'is_active' => true
+                ]);
+            }
+        }
+    }
+} 

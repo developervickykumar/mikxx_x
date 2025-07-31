@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Advanced Dynamic Form Builder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .field-block {
+      position: relative;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+      overflow: hidden;
+      height: 100%;
+      cursor: move;
+    }
+
+    .field-controls {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      display: none;
+      z-index: 10;
+    }
+
+    .field-block:hover .field-controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    .field-container {
+      position: relative;
+      min-width: 100px;
+      flex: 1;
+      transition: width 0.3s ease;
+    }
+
+    .resize-info {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      font-size: 10px;
+      background-color: rgba(0, 0, 0, 0.1);
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+
+    .dropzone-row {
+      min-height: 80px;
+      border: 2px dashed #dee2e6;
+      padding: 10px;
+      margin-bottom: 1rem;
+      background: #fdfdfd;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      transition: height 0.3s ease;
+    }
+
+    .field-row-group {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .row-controls {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      display: none;
+      z-index: 10;
+    }
+
+    .field-row-group:hover .row-controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    .resize-handle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      cursor: se-resize;
+      background: #007bff;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .field-container:hover .resize-handle {
+      opacity: 0.5;
+    }
+
+    .resize-handle:hover {
+      opacity: 1 !important;
+    }
+
+    .split-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 123, 255, 0.1);
+      border: 2px dashed #007bff;
+      width: 100%;
+      height: 100%;
+      display: none;
+    }
+
+    .dropzone-row:hover .split-indicator {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <div id="insert-row-wrapper" class="mb-3">
+      <button type="button" class="btn btn-primary btn-sm" id="insertRowBtn">+ Add New Row</button>
+    </div>
+
+    <form id="dynamicForm" method="POST" action="#" onsubmit="return false;">
+      <div id="sortable-fields"></div>
+      <div id="field-groups" class="mt-4"></div>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.6/Sortable.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      let rowCount = 0;
+      const container = document.getElementById('sortable-fields');
+
+      document.getElementById('insertRowBtn').addEventListener('click', function () {
+        rowCount++;
+
+        const row = document.createElement('div');
+        row.className = 'field-row-group';
+        row.setAttribute('data-row-id', rowCount);
+
+        row.innerHTML = `
+          <div class="row-controls">
+            <button type="button" class="btn btn-sm btn-outline-primary resize-row-btn">Resize Row</button>
+            <button type="button" class="btn btn-sm btn-outline-success split-row-btn">Split Row</button>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+              <label class="me-1 mb-0">Columns:</label>
+              <select class="form-select form-select-sm d-inline w-auto split-count-select">
+                ${[...Array(8)].map((_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="dropzone-row">
+            <div class="split-indicator"></div>
+          </div>
+        `;
+
+        container.appendChild(row);
+        const dropzone = row.querySelector('.dropzone-row');
+        initSortable(dropzone);
+        autoSplitRow(row);
+        initRowResize(row);
+      });
+
+      function initSortable(container) {
+        new Sortable(container, {
+          group: 'shared-fields',
+          animation: 150,
+          handle: '.field-block',
+          draggable: '.field-container',
+          ghostClass: 'bg-light',
+          onEnd: function (evt) {
+            const row = evt.to.closest('.field-row-group');
+            if (row) autoSplitRow(row);
+          }
+        });
+      }
+
+      function autoSplitRow(rowGroup) {
+        const splitCount = parseInt(rowGroup.querySelector('.split-count-select')?.value || 2);
+        const dropzone = rowGroup.querySelector('.dropzone-row');
+        const existingFields = Array.from(dropzone.querySelectorAll('.field-block'));
+
+        dropzone.innerHTML = '<div class="split-indicator"></div>';
+
+        for (let i = 0; i < splitCount; i++) {
+          const col = document.createElement('div');
+          col.className = 'field-container';
+          col.style.flex = `1 1 ${100 / splitCount}%`;
+          col.dataset.col = i + 1;
+
+          if (existingFields[i]) {
+            col.appendChild(existingFields[i]);
+          } else {
+            col.appendChild(createMockField(`New ${i + 1}`));
+          }
+
+          dropzone.appendChild(col);
+          updateScaleInfo(col);
+          initColumnResize(col);
+        }
+      }
+
+      function updateScaleInfo(col) {
+        let info = col.querySelector('.resize-info');
+        if (!info) {
+          info = document.createElement('div');
+          info.className = 'resize-info';
+          col.appendChild(info);
+        }
+        info.textContent = `Width: ${Math.round(col.offsetWidth)}px`;
+      }
+
+      function initColumnResize(col) {
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        col.appendChild(handle);
+
+        let startX, startWidth;
+        handle.addEventListener('mousedown', function(e) {
+          startX = e.pageX;
+          startWidth = col.offsetWidth;
+          
+          document.addEventListener('mousemove', resize);
+          document.addEventListener('mouseup', stopResize);
+        });
+
+        function resize(e) {
+          const width = startWidth + (e.pageX - startX);
+          if (width >= 100) {
+            col.style.width = width + 'px';
+            updateScaleInfo(col);
+          }
+        }
+
+        function stopResize() {
+          document.removeEventListener('mousemove', resize);
+          document.removeEventListener('mouseup', stopResize);
+        }
+      }
+
+      function initRowResize(row) {
+        const dropzone = row.querySelector('.dropzone-row');
+        let startY, startHeight;
+
+        row.querySelector('.resize-row-btn').addEventListener('mousedown', function(e) {
+          startY = e.pageY;
+          startHeight = dropzone.offsetHeight;
+          
+          document.addEventListener('mousemove', resize);
+          document.addEventListener('mouseup', stopResize);
+        });
+
+        function resize(e) {
+          const height = startHeight + (e.pageY - startY);
+          if (height >= 80) {
+            dropzone.style.height = height + 'px';
+          }
+        }
+
+        function stopResize() {
+          document.removeEventListener('mousemove', resize);
+          document.removeEventListener('mouseup', stopResize);
+        }
+      }
+
+      function createMockField(label) {
+        const block = document.createElement('div');
+        block.className = 'field-block';
+        block.innerHTML = `
+          <div class="field-controls">
+            <button type="button" class="btn btn-sm btn-outline-secondary split-column-btn">Split</button>
+            <button type="button" class="btn btn-sm btn-outline-primary resize-btn">Resize</button>
+            <button type="button" class="btn btn-sm btn-outline-success group-select-btn">Group</button>
+          </div>
+          <label>${label}</label>
+          <input type="text" class="form-control" placeholder="${label}">
+        `;
+        return block;
+      }
+
+      // Add test inputs
+      function addTestInputs() {
+        const firstDropzone = document.querySelectorAll('.dropzone-row')[0];
+        if (firstDropzone) {
+          const row = firstDropzone.closest('.field-row-group');
+          const testInputs = [
+            { type: 'text', label: 'Text Input' },
+            { type: 'email', label: 'Email Input' },
+            { type: 'number', label: 'Number Input' },
+            { type: 'date', label: 'Date Input' },
+            { type: 'select', label: 'Select Input' },
+            { type: 'textarea', label: 'Text Area' }
+          ];
+
+          testInputs.forEach((input, i) => {
+            const col = document.createElement('div');
+            col.className = 'field-container';
+            col.style.flex = '1';
+            
+            const block = document.createElement('div');
+            block.className = 'field-block';
+            block.innerHTML = `
+              <div class="field-controls">
+                <button type="button" class="btn btn-sm btn-outline-secondary split-column-btn">Split</button>
+                <button type="button" class="btn btn-sm btn-outline-primary resize-btn">Resize</button>
+                <button type="button" class="btn btn-sm btn-outline-success group-select-btn">Group</button>
+              </div>
+              <label>${input.label}</label>
+              ${input.type === 'select' ? 
+                `<select class="form-control">
+                  <option>Option 1</option>
+                  <option>Option 2</option>
+                  <option>Option 3</option>
+                </select>` :
+                input.type === 'textarea' ?
+                `<textarea class="form-control" placeholder="${input.label}"></textarea>` :
+                `<input type="${input.type}" class="form-control" placeholder="${input.label}">`
+              }
+            `;
+            
+            col.appendChild(block);
+            firstDropzone.appendChild(col);
+            updateScaleInfo(col);
+            initColumnResize(col);
+          });
+
+          initSortable(firstDropzone);
+        }
+      }
+
+      // First row setup
+      document.getElementById('insertRowBtn').click();
+      setTimeout(addTestInputs, 300);
+
+      container.addEventListener('click', function (e) {
+        const block = e.target.closest('.field-block');
+        const rowGroup = e.target.closest('.field-row-group');
+
+        if (e.target.classList.contains('split-column-btn')) {
+          const currentCol = block.closest('.field-container');
+          const newCol = document.createElement('div');
+          newCol.className = 'field-container';
+          newCol.style.flex = '1';
+          newCol.appendChild(createMockField('Split Field'));
+          currentCol.after(newCol);
+          updateScaleInfo(newCol);
+          initColumnResize(newCol);
+        }
+
+        if (e.target.classList.contains('resize-btn')) {
+          // Column resize is handled by the resize handle
+        }
+
+        if (e.target.classList.contains('group-select-btn')) {
+          const groupId = 'group-' + Math.floor(Math.random() * 100000);
+          const wrapper = document.createElement('div');
+          wrapper.className = 'border rounded p-2 mb-3 bg-light';
+          wrapper.setAttribute('data-group-id', groupId);
+
+          wrapper.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <input type="text" class="form-control form-control-sm w-50" value="Grouped Fields" placeholder="Group Name">
+              <button class="btn btn-sm btn-danger ms-2 remove-group">Remove</button>
+            </div>
+            <div class="row group-dropzone" id="${groupId}" style="min-height: 100px; border: 2px dashed #ccc; padding: 10px;"></div>
+          `;
+
+          const dropzone = wrapper.querySelector('.group-dropzone');
+          dropzone.appendChild(block.closest('.field-container'));
+          rowGroup.after(wrapper);
+
+          new Sortable(dropzone, {
+            group: 'shared-fields',
+            animation: 150,
+            ghostClass: 'bg-warning',
+            handle: '.field-block'
+          });
+        }
+
+        if (e.target.classList.contains('split-row-btn')) {
+          const currentRow = rowGroup.querySelector('.dropzone-row');
+          const newRow = document.createElement('div');
+          newRow.className = 'field-row-group';
+          newRow.setAttribute('data-row-id', ++rowCount);
+
+          newRow.innerHTML = `
+            <div class="row-controls">
+              <button type="button" class="btn btn-sm btn-outline-primary resize-row-btn">Resize Row</button>
+              <button type="button" class="btn btn-sm btn-outline-success split-row-btn">Split Row</button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div>
+                <label class="me-1 mb-0">Columns:</label>
+                <select class="form-select form-select-sm d-inline w-auto split-count-select">
+                  ${[...Array(8)].map((_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="dropzone-row">
+              <div class="split-indicator"></div>
+            </div>
+          `;
+
+          rowGroup.after(newRow);
+          const newDropzone = newRow.querySelector('.dropzone-row');
+          initSortable(newDropzone);
+          autoSplitRow(newRow);
+          initRowResize(newRow);
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

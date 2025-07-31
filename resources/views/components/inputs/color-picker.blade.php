@@ -1,0 +1,1 @@
+<input type="color" class="form-control form-control-color" name="{{ $fieldName }}" value="{{ $fieldValue }}">

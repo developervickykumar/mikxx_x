@@ -1,0 +1,93 @@
+// Button variants
+@mixin button-variant($background, $border, $color: #fff) {
+    background-color: $background;
+    border-color: $border;
+    color: $color;
+
+    &:hover {
+        background-color: darken($background, 10%);
+        border-color: darken($border, 10%);
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 0.2rem rgba($background, 0.25);
+    }
+}
+
+// Button sizes
+@mixin button-size($padding-y, $padding-x, $font-size, $border-radius) {
+    padding: $padding-y $padding-x;
+    font-size: $font-size;
+    border-radius: $border-radius;
+}
+
+// Base button styles
+.btn {
+    display: inline-block;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease-in-out;
+
+    &:hover {
+        text-decoration: none;
+    }
+
+    &:focus {
+        outline: 0;
+    }
+
+    &:disabled {
+        opacity: 0.65;
+        pointer-events: none;
+    }
+}
+
+// Button variants
+.btn-primary {
+    @include button-variant($primary, $primary);
+}
+
+.btn-secondary {
+    @include button-variant($secondary, $secondary);
+}
+
+.btn-success {
+    @include button-variant($success, $success);
+}
+
+.btn-danger {
+    @include button-variant($danger, $danger);
+}
+
+.btn-warning {
+    @include button-variant($warning, $warning);
+}
+
+.btn-info {
+    @include button-variant($info, $info);
+}
+
+.btn-light {
+    @include button-variant($light, $light);
+}
+
+.btn-dark {
+    @include button-variant($dark, $dark);
+}
+
+// Button sizes
+.btn-sm {
+    @include button-size(0.25rem, 0.5rem, 0.875rem, 0.2rem);
+}
+
+.btn-lg {
+    @include button-size(0.5rem, 1rem, 1.25rem, 0.3rem);
+} 

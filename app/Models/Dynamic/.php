@@ -1,0 +1,1 @@
+class YourModel extends Model { protected $table = 'your_table'; }

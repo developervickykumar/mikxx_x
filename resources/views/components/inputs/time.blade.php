@@ -1,0 +1,1 @@
+<input type="time" class="form-control" name="{{ $fieldName }}" value="{{ $fieldValue }}">

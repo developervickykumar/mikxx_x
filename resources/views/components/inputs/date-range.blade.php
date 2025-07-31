@@ -1,0 +1,1 @@
+<div class="d-flex gap-2"><input type="date" name="{{ $fieldName }}_from" class="form-control"><input type="date" name="{{ $fieldName }}_to" class="form-control"></div>

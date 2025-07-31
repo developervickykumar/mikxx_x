@@ -1,0 +1,1 @@
+<img src="{{ asset('images/mikxxlogo.png') }}" alt="logo" class="w-20 h-20">

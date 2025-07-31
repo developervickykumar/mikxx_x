@@ -1,0 +1,1 @@
+<textarea class="form-control" readonly placeholder="Custom table component here..."></textarea>

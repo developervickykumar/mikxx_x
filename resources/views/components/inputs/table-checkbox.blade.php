@@ -1,0 +1,1 @@
+<textarea class="form-control" readonly placeholder="Table checkbox UI..."></textarea>

@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classiffied - Comments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--dark-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .menu-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.2rem;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .filter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+        
+        .comment-list {
+            margin-bottom: 20px;
+        }
+        
+        .comment-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .comment-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .comment-user img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .comment-user-info h4 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+        
+        .comment-user-info p {
+            color: #777;
+            font-size: 0.8rem;
+        }
+        
+        .comment-ad {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 10px;
+        }
+        
+        .comment-text {
+            margin-bottom: 10px;
+        }
+        
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .reply-form {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .reply-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .comment-reply {
+            margin-left: 50px;
+            margin-top: 15px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: var(--border-radius);
+        }
+        
+        .comment-reply-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .pagination-info {
+            color: #777;
+        }
+        
+        .pagination-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        .badge-primary {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .badge-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--secondary-color);
+        }
+        
+        .badge-warning {
+            background-color: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .badge-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                width: 250px;
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .comment-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .close-modal:hover {
+            color: var(--danger-color);
+        }
+        
+        .modal-title {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">Classi<span>ffied</span></div>
+        </div>
+        <div class="sidebar-menu">
+            <a href="admin-dashboard.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="admin-my-ads.html" class="menu-item">
+                <i class="fas fa-list-alt"></i>
+                <span>My Ads</span>
+            </a>
+            <a href="admin-create-ad.html" class="menu-item">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Ad</span>
+            </a>
+            <a href="admin-performance.html" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Performance</span>
+            </a>
+            <a href="admin-inquiries.html" class="menu-item">
+                <i class="fas fa-comment-alt"></i>
+                <span>Inquiries</span>
+            </a>
+            <a href="admin-boost-ads.html" class="menu-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Boost Ads</span>
+            </a>
+            <a href="admin-ad-expiry.html" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Ad Expiry</span>
+            </a>
+            <a href="admin-comments.html" class="menu-item active">
+                <i class="fas fa-comment"></i>
+                <span>Comments</span>
+            </a>
+            <a href="admin-media-library.html" class="menu-item">
+                <i class="fas fa-images"></i>
+                <span>Media Library</span>
+            </a>
+            <a href="admin-chat-settings.html" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span>Chat Settings</span>
+            </a>
+            <a href="admin-settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="User-Classified.html" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <button class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                </div>
+                <div class="user-name">John Smith</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Comments & Reviews</h2>
+                <div class="filter-group">
+                    <select id="statusFilter">
+                        <option value="all">All Comments</option>
+                        <option value="pending">Pending Response</option>
+                        <option value="responded">Responded</option>
+                        <option value="reported">Reported</option>
+                    </select>
+                    <select id="adFilter">
+                        <option value="all">All Ads</option>
+                        <option value="1">2019 Honda Civic</option>
+                        <option value="2">iPhone 13 Pro</option>
+                        <option value="3">Modern Sectional Sofa</option>
+                        <option value="4">Vintage Leather Jacket</option>
+                        <option value="5">Apartment for Rent</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="filter-row">
+                    <div class="comment-count">
+                        <strong>28</strong> comments in total (<span class="text-success">18</span> responded, <span class="text-warning">8</span> pending, <span class="text-danger">2</span> reported)
+                    </div>
+                    <div class="filter-group">
+                        <input type="text" placeholder="Search comments..." id="searchInput">
+                        <button class="btn btn-outline" id="searchBtn">Search</button>
+                    </div>
+                </div>
+                
+                <div class="comment-list">
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-user">
+                                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User">
+                                <div class="comment-user-info">
+                                    <h4>Sarah Johnson <span class="badge badge-warning">Pending</span></h4>
+                                    <p>Posted Jul 18, 2023 at 10:30 AM</p>
+                                </div>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="btn btn-outline btn-sm" onclick="replyToComment(1)">Reply</button>
+                                <button class="btn btn-danger btn-sm" onclick="hideComment(1)">Hide</button>
+                                <button class="btn btn-outline btn-sm" onclick="reportSpam(1)">Report Spam</button>
+                            </div>
+                        </div>
+                        <div class="comment-ad">
+                            On: <a href="#" onclick="window.open('User-Classified.html', '_blank')">2019 Honda Civic in Excellent Condition</a>
+                        </div>
+                        <div class="comment-text">
+                            <p>Is the price negotiable? I'm interested but my budget is a bit lower than your asking price.</p>
+                        </div>
+                        <div class="reply-form" id="replyForm1">
+                            <textarea placeholder="Write your reply..."></textarea>
+                            <div>
+                                <button class="btn btn-outline btn-sm" onclick="cancelReply(1)">Cancel</button>
+                                <button class="btn btn-primary btn-sm" onclick="submitReply(1)">Post Reply</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-user">
+                                <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="User">
+                                <div class="comment-user-info">
+                                    <h4>Mike Thomas <span class="badge badge-success">Responded</span></h4>
+                                    <p>Posted Jul 16, 2023 at 2:45 PM</p>
+                                </div>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="btn btn-outline btn-sm" onclick="replyToComment(2)">Reply</button>
+                                <button class="btn btn-danger btn-sm" onclick="hideComment(2)">Hide</button>
+                                <button class="btn btn-outline btn-sm" onclick="reportSpam(2)">Report Spam</button>
+                            </div>
+                        </div>
+                        <div class="comment-ad">
+                            On: <a href="#" onclick="window.open('User-Classified.html', '_blank')">2019 Honda Civic in Excellent Condition</a>
+                        </div>
+                        <div class="comment-text">
+                            <p>What's the MPG like on this model? Also, do you have the full service history?</p>
+                        </div>
+                        <div class="comment-reply">
+                            <div class="comment-reply-header">
+                                <div class="comment-user">
+                                    <div class="comment-user-info">
+                                        <h4>You (John Smith)</h4>
+                                        <p>Replied Jul 16, 2023 at 3:15 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment-text">
+                                <p>Hi Mike, the EPA estimates for this model are 32 MPG city and 42 MPG highway. And yes, I have the complete service history which I can show you if you'd like to see the car in person.</p>
+                            </div>
+                        </div>
+                        <div class="reply-form" id="replyForm2">
+                            <textarea placeholder="Write your reply..."></textarea>
+                            <div>
+                                <button class="btn btn-outline btn-sm" onclick="cancelReply(2)">Cancel</button>
+                                <button class="btn btn-primary btn-sm" onclick="submitReply(2)">Post Reply</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-user">
+                                <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="User">
+                                <div class="comment-user-info">
+                                    <h4>Emily Wilson <span class="badge badge-danger">Reported</span></h4>
+                                    <p>Posted Jul 14, 2023 at 5:20 PM</p>
+                                </div>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="btn btn-outline btn-sm" onclick="replyToComment(3)">Reply</button>
+                                <button class="btn btn-danger btn-sm" onclick="hideComment(3)">Hide</button>
+                                <button class="btn btn-success btn-sm" onclick="approveComment(3)">Approve</button>
+                            </div>
+                        </div>
+                        <div class="comment-ad">
+                            On: <a href="#" onclick="window.open('User-Classified.html', '_blank')">Modern Sectional Sofa - Must Sell</a>
+                        </div>
+                        <div class="comment-text">
+                            <p>Is the sofa stain-resistant? I have kids and pets so that's an important factor for me.</p>
+                        </div>
+                        <div class="reply-form" id="replyForm3">
+                            <textarea placeholder="Write your reply..."></textarea>
+                            <div>
+                                <button class="btn btn-outline btn-sm" onclick="cancelReply(3)">Cancel</button>
+                                <button class="btn btn-primary btn-sm" onclick="submitReply(3)">Post Reply</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-user">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                                <div class="comment-user-info">
+                                    <h4>David Brown <span class="badge badge-warning">Pending</span></h4>
+                                    <p>Posted Jul 12, 2023 at 11:10 AM</p>
+                                </div>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="btn btn-outline btn-sm" onclick="replyToComment(4)">Reply</button>
+                                <button class="btn btn-danger btn-sm" onclick="hideComment(4)">Hide</button>
+                                <button class="btn btn-outline btn-sm" onclick="reportSpam(4)">Report Spam</button>
+                            </div>
+                        </div>
+                        <div class="comment-ad">
+                            On: <a href="#" onclick="window.open('User-Classified.html', '_blank')">Vintage Leather Jacket - Size L</a>
+                        </div>
+                        <div class="comment-text">
+                            <p>What are the exact measurements? I'm usually between a medium and large, so want to make sure it would fit.</p>
+                        </div>
+                        <div class="reply-form" id="replyForm4">
+                            <textarea placeholder="Write your reply..."></textarea>
+                            <div>
+                                <button class="btn btn-outline btn-sm" onclick="cancelReply(4)">Cancel</button>
+                                <button class="btn btn-primary btn-sm" onclick="submitReply(4)">Post Reply</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-user">
+                                <img src="https://randomuser.me/api/portraits/women/58.jpg" alt="User">
+                                <div class="comment-user-info">
+                                    <h4>Lisa Chen <span class="badge badge-success">Responded</span></h4>
+                                    <p>Posted Jul 10, 2023 at 9:30 AM</p>
+                                </div>
+                            </div>
+                            <div class="comment-actions">
+                                <button class="btn btn-outline btn-sm" onclick="replyToComment(5)">Reply</button>
+                                <button class="btn btn-danger btn-sm" onclick="hideComment(5)">Hide</button>
+                                <button class="btn btn-outline btn-sm" onclick="reportSpam(5)">Report Spam</button>
+                            </div>
+                        </div>
+                        <div class="comment-ad">
+                            On: <a href="#" onclick="window.open('User-Classified.html', '_blank')">Apartment for Rent - 2BR Downtown</a>
+                        </div>
+                        <div class="comment-text">
+                            <p>Is the apartment pet-friendly? I have a small dog.</p>
+                        </div>
+                        <div class="comment-reply">
+                            <div class="comment-reply-header">
+                                <div class="comment-user">
+                                    <div class="comment-user-info">
+                                        <h4>You (John Smith)</h4>
+                                        <p>Replied Jul 10, 2023 at 10:15 AM</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment-text">
+                                <p>Hi Lisa, yes, the building is pet-friendly. There's a one-time pet deposit of $300 and an additional $25/month for pet rent. Small dogs under 25 lbs are welcome.</p>
+                            </div>
+                        </div>
+                        <div class="reply-form" id="replyForm5">
+                            <textarea placeholder="Write your reply..."></textarea>
+                            <div>
+                                <button class="btn btn-outline btn-sm" onclick="cancelReply(5)">Cancel</button>
+                                <button class="btn btn-primary btn-sm" onclick="submitReply(5)">Post Reply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing 1-5 of 28 comments
+                    </div>
+                    <div class="pagination-buttons">
+                        <button class="btn btn-outline" disabled>Previous</button>
+                        <button class="btn btn-primary">1</button>
+                        <button class="btn btn-outline">2</button>
+                        <button class="btn btn-outline">3</button>
+                        <button class="btn btn-outline">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>Comment Settings</h2>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div class="settings-row">
+                        <div style="flex: 1;">
+                            <h4>Enable Comments</h4>
+                            <p style="color: #777; font-size: 0.9rem;">Allow users to comment on your ads</p>
+                        </div>
+                        <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                            <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div style="flex: 1;">
+                            <h4>Comment Approval</h4>
+                            <p style="color: #777; font-size: 0.9rem;">Require your approval before comments are visible</p>
+                        </div>
+                        <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                            <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div style="flex: 1;">
+                            <h4>Email Notifications</h4>
+                            <p style="color: #777; font-size: 0.9rem;">Receive email notifications for new comments</p>
+                        </div>
+                        <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                            <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div style="flex: 1;">
+                            <h4>Spam Filter</h4>
+                            <p style="color: #777; font-size: 0.9rem;">Automatically filter out spam comments</p>
+                        </div>
+                        <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                            <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div style="flex: 1;">
+                            <h4>Allow Ratings</h4>
+                            <p style="color: #777; font-size: 0.9rem;">Let users rate your ads alongside comments</p>
+                        </div>
+                        <label class="switch" style="position: relative; display: inline-block; width: 60px; height: 34px;">
+                            <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                            <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px;"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; text-align: right;">
+                    <button class="btn btn-primary">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Comment Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 class="modal-title">Report Comment</h2>
+            <p style="margin-bottom: 15px;">Why are you reporting this comment?</p>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
+                    <input type="radio" name="reportReason" value="spam" checked>
+                    <span>Spam or advertising</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
+                    <input type="radio" name="reportReason" value="inappropriate">
+                    <span>Inappropriate content</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
+                    <input type="radio" name="reportReason" value="harassment">
+                    <span>Harassment or bullying</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
+                    <input type="radio" name="reportReason" value="false">
+                    <span>False information</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 5px;">
+                    <input type="radio" name="reportReason" value="other">
+                    <span>Other</span>
+                </label>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label for="reportDetails" style="display: block; margin-bottom: 5px; font-weight: 500;">Additional Details (Optional)</label>
+                <textarea id="reportDetails" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; resize: vertical; min-height: 100px;"></textarea>
+            </div>
+            
+            <div style="text-align: right;">
+                <button class="btn btn-outline" style="margin-right: 10px;" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="submitReport()">Report Comment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Menu item click
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't prevent default - let the href navigate
+                
+                // Remove active class from all menu items
+                document.querySelectorAll('.menu-item').forEach(mi => {
+                    mi.classList.remove('active');
+                });
+                
+                // Add active class to clicked menu item
+                this.classList.add('active');
+            });
+        });
+        
+        // Set active menu item based on current page
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const itemPage = item.getAttribute('href');
+                if (itemPage === currentPage) {
+                    item.classList.add('active');
+                }
+            });
+        });
+        
+        // Reply to comment functionality
+        function replyToComment(commentId) {
+            const replyForm = document.getElementById(`replyForm${commentId}`);
+            replyForm.style.display = 'block';
+        }
+        
+        function cancelReply(commentId) {
+            const replyForm = document.getElementById(`replyForm${commentId}`);
+            replyForm.style.display = 'none';
+        }
+        
+        function submitReply(commentId) {
+            const replyForm = document.getElementById(`replyForm${commentId}`);
+            const replyText = replyForm.querySelector('textarea').value;
+            
+            if (!replyText.trim()) {
+                alert('Please enter a reply');
+                return;
+            }
+            
+            // In a real app, you would make an API call to save the reply
+            console.log('Submitting reply to comment', commentId, ':', replyText);
+            
+            // Show success message
+            alert('Reply submitted successfully');
+            
+            // Clear form and hide it
+            replyForm.querySelector('textarea').value = '';
+            replyForm.style.display = 'none';
+            
+            // In a real app, you would refresh the page or update the UI
+        }
+        
+        // Hide comment functionality
+        function hideComment(commentId) {
+            if (confirm('Are you sure you want to hide this comment? It will no longer be visible to users.')) {
+                // In a real app, you would make an API call to hide the comment
+                console.log('Hiding comment', commentId);
+                
+                // Show success message
+                alert('Comment hidden successfully');
+                
+                // In a real app, you would remove the comment from the list or update its status
+            }
+        }
+        
+        // Report spam functionality
+        function reportSpam(commentId) {
+            // Show report modal
+            const reportModal = document.getElementById('reportModal');
+            reportModal.style.display = 'flex';
+            
+            // Store comment ID in the modal
+            reportModal.dataset.commentId = commentId;
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
+        
+        // Submit report
+        function submitReport() {
+            const reportModal = document.getElementById('reportModal');
+            const commentId = reportModal.dataset.commentId;
+            const reason = document.querySelector('input[name="reportReason"]:checked').value;
+            const details = document.getElementById('reportDetails').value;
+            
+            // In a real app, you would make an API call to report the comment
+            console.log('Reporting comment', commentId, 'for', reason, ':', details);
+            
+            // Show success message
+            alert('Comment reported successfully');
+            
+            // Close modal
+            closeModal();
+            
+            // Clear form
+            document.getElementById('reportDetails').value = '';
+            
+            // In a real app, you would refresh the page or update the UI
+        }
+        
+        // Approve comment functionality
+        function approveComment(commentId) {
+            // In a real app, you would make an API call to approve the comment
+            console.log('Approving comment', commentId);
+            
+            // Show success message
+            alert('Comment approved successfully');
+            
+            // In a real app, you would refresh the page or update the UI
+        }
+        
+        // Filter comments
+        document.getElementById('statusFilter').addEventListener('change', filterComments);
+        document.getElementById('adFilter').addEventListener('change', filterComments);
+        document.getElementById('searchBtn').addEventListener('click', filterComments);
+        
+        function filterComments() {
+            const status = document.getElementById('statusFilter').value;
+            const ad = document.getElementById('adFilter').value;
+            const search = document.getElementById('searchInput').value;
+            
+            // In a real app, you would make an API call to filter the comments
+            console.log('Filtering comments by', { status, ad, search });
+            
+            // In a real app, you would update the comment list with filtered results
+        }
+        
+        // When clicking outside the modal content, close the modal
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('reportModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Toggle switch functionality for settings
+        document.querySelectorAll('.switch input').forEach(input => {
+            input.addEventListener('change', function() {
+                // In a real app, you would make an API call to update the setting
+                console.log('Setting changed:', this.parentElement.previousElementSibling.querySelector('h4').textContent, 'to', this.checked);
+            });
+        });
+    </script>
+</body>
+</html> 

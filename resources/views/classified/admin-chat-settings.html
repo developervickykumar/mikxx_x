@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classiffied - Chat Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: var(--dark-color);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .logo span {
+            color: var(--secondary-color);
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .menu-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .user-name {
+            font-weight: 500;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.2rem;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .settings-group {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .settings-group:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .settings-info {
+            max-width: 70%;
+        }
+        
+        .settings-info h3 {
+            margin-bottom: 5px;
+        }
+        
+        .settings-info p {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        .blocked-user {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .blocked-user:last-child {
+            border-bottom: none;
+        }
+        
+        .blocked-user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .blocked-user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                width: 250px;
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .settings-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .settings-info {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">Classi<span>ffied</span></div>
+        </div>
+        <div class="sidebar-menu">
+            <a href="admin-dashboard.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="admin-my-ads.html" class="menu-item">
+                <i class="fas fa-list-alt"></i>
+                <span>My Ads</span>
+            </a>
+            <a href="admin-create-ad.html" class="menu-item">
+                <i class="fas fa-plus-circle"></i>
+                <span>Create Ad</span>
+            </a>
+            <a href="admin-performance.html" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Performance</span>
+            </a>
+            <a href="admin-inquiries.html" class="menu-item">
+                <i class="fas fa-comment-alt"></i>
+                <span>Inquiries</span>
+            </a>
+            <a href="admin-boost-ads.html" class="menu-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Boost Ads</span>
+            </a>
+            <a href="admin-ad-expiry.html" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Ad Expiry</span>
+            </a>
+            <a href="admin-comments.html" class="menu-item">
+                <i class="fas fa-comment"></i>
+                <span>Comments</span>
+            </a>
+            <a href="admin-media-library.html" class="menu-item">
+                <i class="fas fa-images"></i>
+                <span>Media Library</span>
+            </a>
+            <a href="admin-chat-settings.html" class="menu-item active">
+                <i class="fas fa-comments"></i>
+                <span>Chat Settings</span>
+            </a>
+            <a href="admin-settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="User-Classified.html" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <button class="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                </div>
+                <div class="user-name">John Smith</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Chat & Messaging Settings</h2>
+                <button class="btn btn-primary" id="saveSettingsBtn">Save Changes</button>
+            </div>
+            <div class="card-body">
+                <div class="settings-group">
+                    <h3>General Settings</h3>
+                    <p style="margin-bottom: 15px;">Configure how you want to receive and handle messages from potential buyers.</p>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Enable Chat</h4>
+                            <p>Allow users to contact you through the chat system. When disabled, users won't be able to send you messages.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="enableChat" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Email Notifications</h4>
+                            <p>Receive email notifications when you get new messages.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Push Notifications</h4>
+                            <p>Receive push notifications on your devices when you get new messages.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="pushNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Show Read Receipts</h4>
+                            <p>Let others know when you've read their messages.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="readReceipts" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Show Online Status</h4>
+                            <p>Let others see when you're online and available to chat.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="onlineStatus" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3>Auto-Response Settings</h3>
+                    <p style="margin-bottom: 15px;">Set up automatic responses to save time and handle common inquiries.</p>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Enable Auto-Responses</h4>
+                            <p>Automatically send a response when you receive a new message.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="enableAutoResponse">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-group" id="autoResponseGroup" style="display: none;">
+                        <label for="autoResponseMessage">Auto-Response Message</label>
+                        <textarea id="autoResponseMessage" placeholder="Example: Thanks for your message! I'll get back to you as soon as possible. Please note that the item is still available unless marked as sold."></textarea>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Out of Office Mode</h4>
+                            <p>Automatically reply that you're unavailable for a specified period.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="outOfOfficeMode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div id="outOfOfficeGroup" style="display: none;">
+                        <div class="form-group">
+                            <label>Out of Office Period</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="date" id="outOfOfficeStart" style="flex: 1;">
+                                <span style="align-self: center;">to</span>
+                                <input type="date" id="outOfOfficeEnd" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="outOfOfficeMessage">Out of Office Message</label>
+                            <textarea id="outOfOfficeMessage" placeholder="Example: I'm currently away until [return date]. I'll respond to your message when I return. Thank you for your patience."></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3>Privacy & Security</h3>
+                    <p style="margin-bottom: 15px;">Manage who can contact you and block unwanted users.</p>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Allow Messages Only for Active Ads</h4>
+                            <p>Only receive messages for ads that are currently active.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="activeAdsOnly" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Filter Spam Messages</h4>
+                            <p>Automatically detect and filter out potential spam messages.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="spamFilter" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="settings-row">
+                        <div class="settings-info">
+                            <h4>Hide Phone Number</h4>
+                            <p>Don't display your phone number in messages or ad listings.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="hidePhoneNumber">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="settings-group">
+                    <h3>Blocked Users</h3>
+                    <p style="margin-bottom: 15px;">Manage users who are blocked from contacting you. Blocked users can't send you messages or see your contact information.</p>
+                    
+                    <div id="blockedUsersList">
+                        <div class="blocked-user">
+                            <div class="blocked-user-info">
+                                <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Blocked User">
+                                <div>
+                                    <h4>Robert Johnson</h4>
+                                    <p>Blocked on Jul 10, 2023</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="unblockUser(1)">Unblock</button>
+                        </div>
+                        <div class="blocked-user">
+                            <div class="blocked-user-info">
+                                <img src="https://randomuser.me/api/portraits/women/62.jpg" alt="Blocked User">
+                                <div>
+                                    <h4>Amanda Wilson</h4>
+                                    <p>Blocked on Jun 28, 2023</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="unblockUser(2)">Unblock</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-outline" onclick="showBlockUserModal()">Block New User</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Block User Modal -->
+    <div id="blockUserModal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div class="modal-content" style="background-color: white; border-radius: 8px; width: 100%; max-width: 500px; padding: 20px; position: relative;">
+            <span class="close-modal" style="position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #777;" onclick="closeModal()">&times;</span>
+            <h2 style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;">Block User</h2>
+            
+            <div class="form-group">
+                <label for="blockUserEmail">User Email or Username</label>
+                <input type="text" id="blockUserEmail" placeholder="Enter email or username">
+            </div>
+            
+            <div class="form-group">
+                <label for="blockReason">Reason (Optional)</label>
+                <textarea id="blockReason" placeholder="Why are you blocking this user?"></textarea>
+            </div>
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn btn-outline" style="margin-right: 10px;" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="blockUser()">Block User</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle sidebar
+        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Menu item click
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't prevent default - let the href navigate
+                
+                // Remove active class from all menu items
+                document.querySelectorAll('.menu-item').forEach(mi => {
+                    mi.classList.remove('active');
+                });
+                
+                // Add active class to clicked menu item
+                this.classList.add('active');
+            });
+        });
+        
+        // Set active menu item based on current page
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop();
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const itemPage = item.getAttribute('href');
+                if (itemPage === currentPage) {
+                    item.classList.add('active');
+                }
+            });
+        });
+        
+        // Toggle auto-response settings
+        document.getElementById('enableAutoResponse').addEventListener('change', function() {
+            const autoResponseGroup = document.getElementById('autoResponseGroup');
+            if (this.checked) {
+                autoResponseGroup.style.display = 'block';
+            } else {
+                autoResponseGroup.style.display = 'none';
+            }
+        });
+        
+        // Toggle out of office settings
+        document.getElementById('outOfOfficeMode').addEventListener('change', function() {
+            const outOfOfficeGroup = document.getElementById('outOfOfficeGroup');
+            if (this.checked) {
+                outOfOfficeGroup.style.display = 'block';
+            } else {
+                outOfOfficeGroup.style.display = 'none';
+            }
+        });
+        
+        // Show block user modal
+        function showBlockUserModal() {
+            document.getElementById('blockUserModal').style.display = 'flex';
+        }
+        
+        // Close modal
+        function closeModal() {
+            document.getElementById('blockUserModal').style.display = 'none';
+        }
+        
+        // Block user
+        function blockUser() {
+            const email = document.getElementById('blockUserEmail').value;
+            const reason = document.getElementById('blockReason').value;
+            
+            if (!email) {
+                alert('Please enter an email or username');
+                return;
+            }
+            
+            // In a real app, you would make an API call to block the user
+            console.log('Blocking user:', { email, reason });
+            
+            // Show success message
+            alert('User has been blocked successfully');
+            
+            // Close modal
+            closeModal();
+            
+            // Clear form
+            document.getElementById('blockUserEmail').value = '';
+            document.getElementById('blockReason').value = '';
+            
+            // In a real app, you would refresh the blocked users list
+        }
+        
+        // Unblock user
+        function unblockUser(userId) {
+            if (confirm('Are you sure you want to unblock this user? They will be able to contact you again.')) {
+                // In a real app, you would make an API call to unblock the user
+                console.log('Unblocking user:', userId);
+                
+                // Show success message
+                alert('User has been unblocked successfully');
+                
+                // In a real app, you would remove the user from the blocked list
+            }
+        }
+        
+        // Save settings
+        document.getElementById('saveSettingsBtn').addEventListener('click', function() {
+            // Get all settings
+            const settings = {
+                enableChat: document.getElementById('enableChat').checked,
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                pushNotifications: document.getElementById('pushNotifications').checked,
+                readReceipts: document.getElementById('readReceipts').checked,
+                onlineStatus: document.getElementById('onlineStatus').checked,
+                enableAutoResponse: document.getElementById('enableAutoResponse').checked,
+                autoResponseMessage: document.getElementById('autoResponseMessage').value,
+                outOfOfficeMode: document.getElementById('outOfOfficeMode').checked,
+                outOfOfficeStart: document.getElementById('outOfOfficeStart').value,
+                outOfOfficeEnd: document.getElementById('outOfOfficeEnd').value,
+                outOfOfficeMessage: document.getElementById('outOfOfficeMessage').value,
+                activeAdsOnly: document.getElementById('activeAdsOnly').checked,
+                spamFilter: document.getElementById('spamFilter').checked,
+                hidePhoneNumber: document.getElementById('hidePhoneNumber').checked
+            };
+            
+            // In a real app, you would make an API call to save the settings
+            console.log('Saving settings:', settings);
+            
+            // Show success message
+            alert('Settings saved successfully');
+        });
+        
+        // When clicking outside the modal content, close the modal
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('blockUserModal');
+            if (e.target === modal) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html> 
