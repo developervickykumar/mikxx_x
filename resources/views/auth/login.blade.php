@@ -114,6 +114,12 @@
                                                     </a>
                                                 </li>
                                                 <li class="list-inline-item">
+                                                    <a href="{{url('/github')}}"
+                                                        class="social-list-item bg-info text-white border-info">
+                                                        <i class="mdi mdi-github"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="list-inline-item">
                                                     <a href="{{url('/google')}}"
                                                         class="social-list-item bg-danger text-white border-danger">
                                                         <i class="mdi mdi-google"></i>
