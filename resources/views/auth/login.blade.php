@@ -114,7 +114,7 @@
                                                     </a>
                                                 </li>
                                                 <li class="list-inline-item">
-                                                    <a href="{{url('/github')}}"
+                                                    <a href="{{url('/auth/github')}}"
                                                         class="social-list-item bg-info text-white border-info">
                                                         <i class="mdi mdi-github"></i>
                                                     </a>

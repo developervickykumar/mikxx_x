@@ -21,9 +21,6 @@ Route::middleware('guest')->group(function () {
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
-        //google login system
-    Route::get('google',[SocialiteController::class, 'googleLogin'])->name('google');
-    Route::get('/auth/google/callback',[SocialiteController::class, 'googleHandle'])->name('auth.google.callback');
 
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
@@ -39,6 +36,14 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+        //google login system
+    Route::get('google',[SocialiteController::class, 'googleLogin'])->name('google');
+    Route::get('/auth/google/callback',[SocialiteController::class, 'googleHandle'])->name('auth.google.callback');
+
+       //github login sytem
+    Route::get('/auth/github',[SocialiteController::class, 'githubLogin'])->name('auth.github');
+    Route::get('/login/github/callback',[SocialiteController::class, 'githubHandel'])->name('login.github.callback');
+
 });
 
 Route::middleware('auth')->group(function () {

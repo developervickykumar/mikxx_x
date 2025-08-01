@@ -59,6 +59,7 @@ protected $fillable = [
     'profile_picture',
      'additional_info',
      'google_id',
+     'github_id',
 ];
 
 
