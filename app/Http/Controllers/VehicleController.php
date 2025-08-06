@@ -271,28 +271,53 @@ public function  export($type = 'csv')
 
 public function productBuilder()
 {
-    $product =  Category::where('id','93829')->first();
-
-    $subproduct = optional($product)
-    ->children()
-    ->where('id',16256)
-    ->first();
-    if(!$subproduct)
-    {
-        abort(404,'product subcategory not found:');
-    }
-    $productsubcategory = $subproduct->children()->where('status','active')->get();
-
-    $groupedsubcategory= [];
-
-    foreach($productsubcategory as $subcategory){
-        if(!is_object($subcategory) || !isset($subcategory->name)){
-            \Log::error("Inviled subcategory:",['data'=>$subcategory]);
-        continue;
+   $builderCategory = Category::where('name', 'builders')->first();
+    
+        $formCategory = optional($builderCategory)
+            ->children()
+            ->where('name', 'Form')
+            ->first();
+    
+        if (!$formCategory) {
+            abort(404, "Form category not found.");
         }
-        $groupedsubcategory[$subcategory->name] = $subcategory->children()->where('status','active')->get();
-    }
-    return view('productBuilder',compact('groupedsubcategory'));
+    
+        $formSubCategories = $formCategory->children()->where('status', 'active')->get();
+    
+        $groupedSubCategories = [];
+    
+        foreach ($formSubCategories as $subCategory) {
+            if (!is_object($subCategory) || !isset($subCategory->name)) {
+                \Log::error("Invalid subCategory:", ['data' => $subCategory]);
+                continue;
+            }
+    
+            $groupedSubCategories[$subCategory->name] = $subCategory->children()->where('status', 'active')->get();
+        }
+        
+            $modules = Category::where('name', 'modules')->first();
+          
+             $userCategory = Category::where('name', 'user')->first();
+        $userCategories = $userCategory ? $userCategory->children()->where('status', 'active')->get() : [];
+
+        $pageCategory = Category::where('name', 'pages')->first(); 
+        $pageCategories = $pageCategory ? $pageCategory->children()->where('status', 'active')->get() : [];
+
+        $functionalityCategory = Category::where('name', 'functionality')->first(); 
+        $functionalityCategories = $functionalityCategory ? $functionalityCategory->children()->where('status', 'active')->get() : [];
+        
+        $defaultForms = Category::where('label->label', 'Form')->get();
+
+     return view('backend.builder.index', [
+            'groupedSubCategories' => $groupedSubCategories,
+            'formCategory' => $formCategory,
+            'modules' => $modules,
+            'userCategories'=>$userCategories,
+            'pageCategories'=>$pageCategories, 
+            'functionalityCategories'=>$functionalityCategories,
+             'defaultForms'=> $defaultForms,
+
+        ]);
 }
 
 }

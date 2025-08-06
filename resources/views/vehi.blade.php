@@ -13,91 +13,173 @@
 
 @section('content')
 
-@if(session()->get('success'))
-<span class="alert alert-success">
-    {{session()->get('success')}}
-</span>
-    @endif
 
+    <style>
+        .form-sidebar {
+            max-height: 85vh;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+        }
 
-<div class="container my-5">
-    <h2 class="mb-4 text-center">Upload Vehicle Details</h2>
+        .form-element {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+        }
 
-    <form action="{{url('vehicleStore   ')}}" method="POST" enctype="multipart/form-data">
-        @csrf
+        .form-element:hover {
+            cursor: grab;
+            background-color: #e9ecef;
+        }
 
-        <!-- Dynamic Tabs -->
-        <ul class="nav nav-tabs mb-3" id="formTabs" role="tablist">
-            @foreach ($product as $index => $step)
-            <li class="nav-item" role="presentation">
-                <button class="nav-link {{ $index === 0 ? 'active' : '' }}" id="{{ $step->id }}-tab"
-                    data-bs-toggle="tab" data-bs-target="#step-tab-{{$step->id}}" type="button" role="tab">
-                    {{ $step->name }}
-                </button>
-            </li>
-            @endforeach
-        </ul>
+        .accordion-button {
+            background-color: #f1f1f1;
+        }
 
-        <div class="tab-content" id="formTabsContent">
-     @foreach ($product as $index => $step)
-    <div class="tab-pane fade {{ $index === 0 ? 'show active' : '' }}" id="step-tab-{{$step->id}}" role="tabpanel">
-        
-        @foreach ($step->child as $item)
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label class="form-label">{{ $item->name }}</label>
+        .accordion-body {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
 
-                @php
-                    $name = strtolower(trim($item->name));
-                    $functionality = strtolower($item->functionality);
-                    $options = $item->child ?? []; // 3rd-level options (dropdown or checkboxes)
-                @endphp
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-4 form-sidebar p-0">
+            <!-- Tabs -->
+            <ul class="nav nav-tabs bg-white px-2 pt-2" id="elementTabs" role="tablist">
+                @foreach ($groupedSubCategories as $key => $items)
+                    <li class="nav-item">
+                        <a class="nav-link {{ $loop->first ? 'active' : '' }}"
+                           id="{{ strtolower($key) }}-tab"
+                           data-bs-toggle="tab"
+                           href="#tab-{{ strtolower($key) }}"
+                           role="tab">
+                            {{ ucfirst($key) }}
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
 
-                @if ($functionality == 'text')
-                    <input type="text" class="form-control" name="{{ $item->name }}"
-                           placeholder="Enter {{ $item->name }}">
-                @elseif ($functionality == 'optional')
-                    <select class="form-select" name="{{ $item->name }}_id">
-                        <option value="">Select {{ $item->name }}</option>
-                        @foreach ($options as $opt)
-                            <option value="{{ $opt->id }}">{{ $opt->name }}</option>
-                        @endforeach
-                    </select>
-                @elseif ($functionality == 'checkbox')
-                    @foreach ($options as $opt)
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox"
-                                   name="{{ $item->name }}[]" value="{{ $opt->name }}">
-                            <label class="form-check-label">{{ $opt->name }}</label>
-                        </div>
-                    @endforeach
-                @elseif ($functionality == 'radio')
-                    @foreach (['Yes', 'No'] as $val)
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio"
-                                   name="{{ $item->name }}" value="{{ $val }}">
-                            <label class="form-check-label">{{ $val }}</label>
-                        </div>
-                    @endforeach
-                @elseif ($functionality == 'files')
-                    <input type="file" class="form-control" name="{{ $item->name }}">
-                @else
-                    <input type="text" class="form-control" name="{{ $item->name }}"
-                           placeholder="Enter {{ $item->name }}">
-                @endif
+            <!-- Tab Contents -->
+            <div class="tab-content p-3" id="elementTabsContent">
+                @foreach ($groupedSubCategories as $key => $parentCategories)
+                    <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}"
+                         id="tab-{{ strtolower($key) }}"
+                         role="tabpanel">
 
+                        @if($parentCategories->isEmpty())
+                            <p class="text-muted">No {{ $key }} elements available.</p>
+                        @else
+                            <div class="accordion" id="accordion-{{ strtolower($key) }}">
+                                @foreach ($parentCategories as $parent)
+                                    @php
+                                        $accordionId = \Illuminate\Support\Str::slug($parent->name . '-' . $key . '-' . $parent->id, '_');
+                                        $children = $parent->children()->where('status', 'active')->get();
+                                    @endphp
+
+                                    <div class="accordion-item mb-2">
+                                        <h2 class="accordion-header" id="heading-{{ $accordionId }}">
+                                            <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapse-{{ $accordionId }}"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapse-{{ $accordionId }}">
+                                                {{ $parent->name }}
+                                            </button>
+                                        </h2>
+                                        <div id="collapse-{{ $accordionId }}"
+                                             class="accordion-collapse collapse"
+                                             aria-labelledby="heading-{{ $accordionId }}"
+                                             data-bs-parent="#accordion-{{ strtolower($key) }}">
+                                            <div class="accordion-body">
+                                                @forelse ($children as $child)
+                                                    @php
+                                                        $groupviewType = ($child->group_view['enabled'] ?? false)
+                                                            ? strtolower($child->group_view['view_type'] ?? '')
+                                                            : '';
+                                                        $optionAllowed = ($child->advanced['allow_user_options'] ?? false)
+                                                            ? strtolower($child->advanced['allow_user_options'] ?? '')
+                                                            : '';
+                                                        $isForm = (strtolower($child->label_json['label'] ?? '') === 'form');
+                                                    @endphp
+
+                                                    <div class="form-element"
+                                                         draggable="true"
+                                                         data-label="{{ $child->name }}"
+                                                         data-groupview="{{ $groupviewType }}"
+                                                         data-functionality="{{ strtolower($child->functionality ?? 'text') }}"
+                                                         data-optionAllowed="{{ $optionAllowed }}"
+                                                         data-isform="{{ $isForm ? '1' : '0' }}">
+
+                                                        <i class="{{ $child->icon ?? 'fas fa-tag' }}"></i>
+                                                        <p class="mb-0">{{ $child->name }}</p>
+
+                                                        <div>
+                                                            @if($isForm)
+                                                                <span class="badge bg-primary ms-2">Form</span>
+                                                            @endif
+
+                                                            @if($groupviewType)
+                                                                <span class="badge bg-success ms-2">Group</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <p class="text-muted mb-0">No elements inside {{ $parent->name }}</p>
+                                                @endforelse
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
             </div>
         </div>
-        @endforeach
-    </div>
-@endforeach
 
-
-        <div class="mt-4 text-end">
-            <button type="submit" class="btn btn-primary">Submit Form</button>
+        <!-- Placeholder for form drop area (optional) -->
+        <div class="col-md-8 p-4">
+            <h4>Form Canvas (Drag elements here)</h4>
+            <div id="formCanvas" class="border rounded p-4" style="min-height: 300px; background: #f8f9fa;"
+                 ondragover="event.preventDefault()" ondrop="handleDrop(event)">
+                <p class="text-muted">Drag form elements here</p>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
+
+
+
+<!-- Simple Drag-and-Drop Script -->
+<script>
+    document.querySelectorAll('.form-element').forEach(elem => {
+        elem.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                label: e.target.dataset.label,
+                functionality: e.target.dataset.functionality,
+                groupview: e.target.dataset.groupview,
+                optionAllowed: e.target.dataset.optionallowed,
+                isForm: e.target.dataset.isform
+            }));
+        });
+    });
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const dropped = document.createElement('div');
+        dropped.className = 'p-2 border mb-2 bg-white';
+        dropped.textContent = `Dropped: ${data.label} (${data.functionality})`;
+        document.getElementById('formCanvas').appendChild(dropped);
+    }
+</script>
+
+
 
 @endsection
 

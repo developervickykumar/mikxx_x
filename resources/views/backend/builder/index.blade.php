@@ -337,10 +337,11 @@ let formStructure = []; // [{ label: 'Group 1', elements: [{ label: 'Name' }] }]
 
 document.getElementById('previewType').addEventListener('change', function() {
     previewType = this.value;
+    conslo
     renderPreviewLayout();
 });
 
-document.getElementById('layoutSelect').addEventListener('change', funct ion() {
+document.getElementById('layoutSelect').addEventListener('change', function() {
     layoutClass = this.value;
     applyLayout();
 });
@@ -373,7 +374,7 @@ function addNewGroup() {
 function renderPreviewLayout() {
     const container = document.getElementById('formCanvas');
     container.innerHTML = '';
-
+     console.log(container.innerHTML);
     let html = '';
     if (previewType === 'horizontal-tabs') {
         html = `<ul class="nav nav-tabs mb-3" id="tabHeaders"></ul><div class="tab-content" id="tabContents"></div>`;
