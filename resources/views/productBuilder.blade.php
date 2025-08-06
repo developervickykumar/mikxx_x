@@ -287,8 +287,21 @@
       });
       bindSidebarDragEvent();
       bindFieldRemoveButton();
+      if(typeof pendingChipViews)
+      {
+        pendingChipViews.forEach(({
+            label,
+            option
+        })=>{
+            setTimeout(()=>initChipView(label, option),0);
+        });
+        pendingChipViews = [];
+      }
 
     }
-
+ function renderGroup()
+ {
+    
+ }
 </script>
 @endsection
