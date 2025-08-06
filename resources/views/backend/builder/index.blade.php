@@ -9,115 +9,113 @@
 @endcomponent
 
 <style>
-    .vertical-menu {
-        display: none;
-    }
+.vertical-menu {
+    display: none;
+}
 
-    .main-content {
-        margin-left: 0;
-    }
+.main-content {
+    margin-left: 0;
+}
 
-    @media (min-width: 1200px) {
+@media (min-width: 1200px) {
 
-        .container,
-        .container-lg,
-        .container-md,
-        .container-sm,
-        .container-xl,
-        .container-xxl {
-            max-width: 100%;
-        }
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl,
+    .container-xxl {
+        max-width: 100%;
     }
+}
 </style>
 
 <style>
-    .form-sidebar {
-        max-height: 80vh;
-        overflow-y: auto;
-        border-right: 1px solid #dee2e6;
-        background: #f8f9fa;
-    }
-    
-    .left-accordion .form-element{
-        width: 32.5%;
-         display:flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+.form-sidebar {
+    max-height: 80vh;
+    overflow-y: auto;
+    border-right: 1px solid #dee2e6;
+    background: #f8f9fa;
+}
 
-    }
+.left-accordion .form-element {
+    width: 32.5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 
-    .form-element {
-        background: #fff;
-        padding: 14px 4px;
-        margin-bottom: 2px;
-        /*border: 1px solid #ced4da;*/
-        /*border-radius: 6px;*/
-        cursor: grab;
-        
-        font-size: 11px;
-       
-    }
-    
-    
+}
 
-    .form-canvas {
-        min-height: 80vh;
-        padding: 20px;
-        border-radius: 6px;
-    }
+.form-element {
+    background: #fff;
+    padding: 14px 4px;
+    margin-bottom: 2px;
+    /*border: 1px solid #ced4da;*/
+    /*border-radius: 6px;*/
+    cursor: grab;
 
-    .form-element.dragging {
-        opacity: 0.5;
-    }
-    
-    .form-element i {
-        font-size: 20px;
-        height: 25px;
-        display: flex
-    ;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .drop-zone{
-        min-height: 50px;
-    }
+    font-size: 11px;
 
-    .drop-zone-hover {
-        background: #fff;
-        border-color: #fff !important;
-    }
+}
 
-    .tab-content>.active {
-        display: block !important;
-    }
 
-    .accordion-body.left-accordion {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        /*justify-content: space-between;*/
-        background: #f1f1f1;
-        padding: 10px;
-    }
-    .add-more-drop-zone.drop-zone-hover {
-     
- 
-      min-height: 60px;
-      border-radius: 6px;
-      transition: all 0.2s ease;
-    }
-    
-    
-    .add-more-drop-zone {
-      
-      min-height: 60px;
-      padding: 10px;
-      border-radius: 6px;
-    }
 
-    
+.form-canvas {
+    min-height: 80vh;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.form-element.dragging {
+    opacity: 0.5;
+}
+
+.form-element i {
+    font-size: 20px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.drop-zone {
+    min-height: 50px;
+}
+
+.drop-zone-hover {
+    background: #fff;
+    border-color: #fff !important;
+}
+
+.tab-content>.active {
+    display: block !important;
+}
+
+.accordion-body.left-accordion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    /*justify-content: space-between;*/
+    background: #f1f1f1;
+    padding: 10px;
+}
+
+.add-more-drop-zone.drop-zone-hover {
+
+
+    min-height: 60px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+
+.add-more-drop-zone {
+
+    min-height: 60px;
+    padding: 10px;
+    border-radius: 6px;
+}
 </style>
 
 <div class="row">
@@ -126,8 +124,8 @@
         <!-- Tabs Navigation -->
         <ul class="nav nav-tabs bg-white px-2 pt-2" id="elementTabs" role="tablist">
             @foreach ($groupedSubCategories as $key => $items)
-            <li class="nav-item">
-                <a class="nav-link {{ $loop->first ? 'active' : '' }}" id="{{ strtolower($key) }}-tab"
+            <li class="nav-item ">
+                <a class="nav-link {{ $loop->first ? 'active' : '' }} " id="{{ strtolower($key) }}-tab"
                     data-bs-toggle="tab" href="#tab-{{ strtolower($key) }}" role="tab">
                     {{ ucfirst($key) }}
                 </a>
@@ -152,9 +150,9 @@
 
                     <div class="accordion-item mb-2">
                         <h2 class="accordion-header" id="heading-{{ $accordionId }}">
-                            <button style="background:#f1f1f1" class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapse-{{ $accordionId }}" aria-expanded="false"
-                                aria-controls="collapse-{{ $accordionId }}">
+                            <button style="background:#f1f1f1" class="accordion-button collapsed" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapse-{{ $accordionId }}"
+                                aria-expanded="false" aria-controls="collapse-{{ $accordionId }}">
                                 {{ $parent->name }}
                             </button>
                         </h2>
@@ -163,29 +161,33 @@
                             data-bs-parent="#accordion-{{ strtolower($key) }}">
                             <div class="accordion-body left-accordion">
                                 @forelse ($children as $child)
-                                
+
                                 @php
-                                    $groupviewType = ($child->group_view['enabled'] ?? false) ? strtolower($child->group_view['view_type'] ?? '') : '';
-                                    $optionAllowed = ($child->advanced['allow_user_options'] ?? false) ? strtolower($child->advanced['allow_user_options'] ?? '') : '';
-                                    $isForm = (strtolower($child->label_json['label'] ?? '') === 'form'); 
+                                $groupviewType = ($child->group_view['enabled'] ?? false) ?
+                                strtolower($child->group_view['view_type'] ?? '') : '';
+                                $optionAllowed = ($child->advanced['allow_user_options'] ?? false) ?
+                                strtolower($child->advanced['allow_user_options'] ?? '') : '';
+                                $isForm = (strtolower($child->label_json['label'] ?? '') === 'form');
 
                                 @endphp
-                                <div class="form-element" draggable="true" data-label="{{ $child->name }}" data-groupview="{{ $groupviewType }}"
-                                    data-functionality="{{ strtolower($child->functionality ?? 'text') }}" data-optionAllowed="{{ $optionAllowed }}" data-isform="{{ $isForm ? '1' : '0' }}">
+                                <div class="form-element" draggable="true" data-label="{{ $child->name }}"
+                                    data-groupview="{{ $groupviewType }}"
+                                    data-functionality="{{ strtolower($child->functionality ?? 'text') }}"
+                                    data-optionAllowed="{{ $optionAllowed }}" data-isform="{{ $isForm ? '1' : '0' }}">
 
                                     <i class="{{ $child->icon ?? 'fas fa-tag' }} pb-2"></i>
                                     <p class=" mb-0">{{ $child->name }}</p>
                                     <div>
-                                    @if($isForm)
+                                        @if($isForm)
                                         <span class="badge bg-primary ms-2">Form</span>
-                                    @endif
-                                    
-                                    @if($groupviewType)
+                                        @endif
+
+                                        @if($groupviewType)
                                         <span class="badge bg-primary ms-2">Group</span>
-                                    @endif
+                                        @endif
 
                                     </div>
-                                
+
                                 </div>
                                 @empty
                                 <p class="text-muted mb-0">No elements inside {{ $parent->name }}</p>
@@ -325,95 +327,98 @@
 
 
 <script>
-    let pendingChipViews = [];
+let pendingChipViews = [];
 
-    let previewType = 'default';
-    let layoutClass = 'col-md-12';
-    let draggedElement = null;
+let previewType = 'default';
+let layoutClass = 'col-md-12';
+let draggedElement = null;
 
-    let formStructure = []; // [{ label: 'Group 1', elements: [{ label: 'Name' }] }]
+let formStructure = []; // [{ label: 'Group 1', elements: [{ label: 'Name' }] }]
 
-    document.getElementById('previewType').addEventListener('change', function () {
-        previewType = this.value;
-        renderPreviewLayout();
+document.getElementById('previewType').addEventListener('change', function() {
+    previewType = this.value;
+    renderPreviewLayout();
+});
+
+document.getElementById('layoutSelect').addEventListener('change', funct ion() {
+    layoutClass = this.value;
+    applyLayout();
+});
+
+function applyLayout() {
+    document.querySelectorAll('.form-element').forEach(el => {
+        el.className = `form-element ${layoutClass}`;
+    });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    bindSidebarDragEvents();
+    addNewGroup(); // Default group
+    renderPreviewLayout();
+});
+
+function addNewGroup() {
+    const groupLabel = `Group ${formStructure.length + 1}`;
+    formStructure.push({
+        label: groupLabel,
+        elements: [],
+        columns: 1, // default: 1-column layout
+        addMoreBlocks: []
     });
 
-    document.getElementById('layoutSelect').addEventListener('change', function () {
-        layoutClass = this.value;
-        applyLayout();
-    });
 
-    function applyLayout() {
-        document.querySelectorAll('.form-element').forEach(el => {
-            el.className = `form-element ${layoutClass}`;
-        });
-    }
+    renderPreviewLayout();
+}
 
-    window.addEventListener('DOMContentLoaded', () => {
-        bindSidebarDragEvents();
-        addNewGroup(); // Default group
-        renderPreviewLayout();
-    });
+function renderPreviewLayout() {
+    const container = document.getElementById('formCanvas');
+    container.innerHTML = '';
 
-    function addNewGroup() {
-        const groupLabel = `Group ${formStructure.length + 1}`;
-        formStructure.push({
-            label: groupLabel,
-            elements: [],
-            columns: 1, // default: 1-column layout
-            addMoreBlocks: []
-        });
-
-
-        renderPreviewLayout();
-    }
-
-    function renderPreviewLayout() {
-        const container = document.getElementById('formCanvas');
-        container.innerHTML = '';
-
-        let html = '';
-        if (previewType === 'horizontal-tabs') {
-            html = `<ul class="nav nav-tabs mb-3" id="tabHeaders"></ul><div class="tab-content" id="tabContents"></div>`;
-        } else if (previewType === 'vertical-tabs') {
-            html = `
+    let html = '';
+    if (previewType === 'horizontal-tabs') {
+        html = `<ul class="nav nav-tabs mb-3" id="tabHeaders"></ul><div class="tab-content" id="tabContents"></div>`;
+    } else if (previewType === 'vertical-tabs') {
+        html = `
     <div class="row">
       <div class="col-md-3"><ul class="nav flex-column nav-pills" id="tabHeaders"></ul></div>
       <div class="col-md-9"><div class="tab-content" id="tabContents"></div></div>
     </div>`;
-        } else if (previewType === 'multi-step') {
-            html = `<div id="stepNav" class="d-flex gap-2 mb-3"></div><div class="tab-content" id="tabContents"></div>`;
-        } else {
-            html = `<div class="accordion" id="formAccordion"></div>`;
-        }
-
-        container.innerHTML = html;
-
-        formStructure.forEach((group, index) => {
-            renderGroup(group, index);
-        });
-
-        bindSidebarDragEvents();     // ✅ For dragging
-        bindFieldRemoveButtons();  
-        
-        if (typeof pendingChipViews !== 'undefined') {
-    pendingChipViews.forEach(({ label, options }) => {
-        setTimeout(() => initChipView(label, options), 0);
-    });
-    pendingChipViews = []; // Clear after running
-}
-
+    } else if (previewType === 'multi-step') {
+        html = `<div id="stepNav" class="d-flex gap-2 mb-3"></div><div class="tab-content" id="tabContents"></div>`;
+    } else {
+        html = `<div class="accordion" id="formAccordion"></div>`;
     }
 
-   
-    
+    container.innerHTML = html;
+
+    formStructure.forEach((group, index) => {
+        renderGroup(group, index);
+    });
+
+    bindSidebarDragEvents(); // ✅ For dragging
+    bindFieldRemoveButtons();
+
+    if (typeof pendingChipViews !== 'undefined') {
+        pendingChipViews.forEach(({
+            label,
+            options
+        }) => {
+            setTimeout(() => initChipView(label, options), 0);
+        });
+        pendingChipViews = []; // Clear after running
+    }
+
+}
+
+
+
 function renderGroup(group, index) {
     const groupId = `group-${index + 1}`;
     const label = group.label || `Group ${index + 1}`;
 
     const viewType = group.viewType || previewType; // ✅ use group-level type if available
 
-console.log(group);
+    console.log(group);
     if (viewType === 'horizontal-tabs' || viewType === 'vertical-tabs') {
         const tabHeaders = document.getElementById('tabHeaders');
         const tabContents = document.getElementById('tabContents');
@@ -421,7 +426,8 @@ console.log(group);
 
         const tab = document.createElement('li');
         tab.className = 'nav-item';
-        tab.innerHTML = `<a class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" href="#${tabId}">${label}</a>`;
+        tab.innerHTML =
+            `<a class="nav-link ${index === 0 ? 'active' : ''}" data-bs-toggle="tab" href="#${tabId}">${label}</a>`;
         tabHeaders.appendChild(tab);
 
         const pane = document.createElement('div');
@@ -533,19 +539,19 @@ console.log(group);
     }
 }
 
-    
 
-    function addMoreToGroup(groupIndex) {
-        const label = `Field ${formStructure[groupIndex].elements.length + 1}`;
-        formStructure[groupIndex].elements.push({
-            label: label,
-            functionality: 'text' // default or let user pick later
-        });
 
-        renderPreviewLayout();
-    }
+function addMoreToGroup(groupIndex) {
+    const label = `Field ${formStructure[groupIndex].elements.length + 1}`;
+    formStructure[groupIndex].elements.push({
+        label: label,
+        functionality: 'text' // default or let user pick later
+    });
 
- 
+    renderPreviewLayout();
+}
+
+
 
 
 function renderInputByFunctionality(el) {
@@ -555,7 +561,7 @@ function renderInputByFunctionality(el) {
 
     switch (functionality) {
         // === Standard Types ===
-        
+
         case 'optional':
         case 'multiselect':
             return `
@@ -613,13 +619,13 @@ function renderInputByFunctionality(el) {
                        oninput="document.getElementById('rangeValue-${label}').textContent = this.value">
                 <span id="rangeValue-${label}">50</span>
             `;
-        
+
         case 'review':
             return `
                 <label for="reviewInput-${label}">Write your Review:</label><br>
                 <textarea id="reviewInput-${label}" name="review" rows="4" cols="50" placeholder="Write your experience here..."></textarea>
             `;
-        
+
         case 'rating':
             return `
                 <style>
@@ -670,7 +676,7 @@ function renderInputByFunctionality(el) {
         case 'date reservation':
             return `<input type="date" class="form-control" placeholder="Reserve ${label}">`;
 
-        // === Media ===
+            // === Media ===
         case 'logo':
         case 'image':
         case 'banner':
@@ -684,11 +690,14 @@ function renderInputByFunctionality(el) {
         case 'presentation':
             return `<input type="file" class="form-control" multiple>`;
 
-        // === Advanced UI Elements ===
-case 'chip view':
-    pendingChipViews.push({ label, options: el.options || [] });
+            // === Advanced UI Elements ===
+        case 'chip view':
+            pendingChipViews.push({
+                label,
+                options: el.options || []
+            });
 
-    return `
+            return `
         <div class="chip-view-wrapper position-relative">
             <input type="hidden" name="chip_view_data_${label}" id="chipData-${label}">
             <label class="label" for="chipInput-${label}">${label}</label>
@@ -698,14 +707,14 @@ case 'chip view':
         </div>
     `;
 
-    
-    
-    
+
+
+
 
         case 'expandable dropdown':
-            
+
         case 'checkbox dropdown':
-    return `
+            return `
         <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="chkDropdown-${label}" data-bs-toggle="dropdown" aria-expanded="false">
                 ${label} <i class="mdi mdi-chevron-down"></i>
@@ -721,8 +730,8 @@ case 'chip view':
         </div>
     `;
 
-case 'button dropdown':
-    return `
+        case 'button dropdown':
+            return `
         <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="btnDropdown-${label}" data-bs-toggle="dropdown" aria-expanded="false">
                 ${label} <i class="mdi mdi-chevron-down"></i>
@@ -733,8 +742,8 @@ case 'button dropdown':
         </div>
     `;
 
-case 'icon dropdown':
-    return `
+        case 'icon dropdown':
+            return `
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="iconDropdown-${label}" data-bs-toggle="dropdown" aria-expanded="false">
                 ${label} <i class="mdi mdi-chevron-down"></i>
@@ -760,12 +769,12 @@ case 'icon dropdown':
         case 'color picker':
             return `<input type="color" class="form-control form-control-color">`;
 
-        // === Table & Grid ===
+            // === Table & Grid ===
         case 'table':
         case 'table checkbox':
         case 'column table':
-       case 'checkbox row table':
-    return `
+        case 'checkbox row table':
+            return `
         <div class="checkbox-table-wrapper mb-3" id="tableWrapper-${label}">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <input type="text" class="form-control form-control-sm editable-table-name" id="tableTitle-${label}" value="${label}" style="font-weight: bold; max-width: 300px;" />
@@ -815,7 +824,7 @@ case 'icon dropdown':
         case 'data grid':
             return `<div class="border p-3 bg-white rounded">[${functionality}] Table Placeholder</div>`;
 
-        // === Fallback ===
+            // === Fallback ===
         default:
             return `<input type="text" class="form-control" placeholder="${label}">`;
     }
@@ -834,7 +843,10 @@ function addRowToCheckboxTable(label) {
     if (!rowLabel) return;
 
     if (!checkboxTableConfig[label]) {
-        checkboxTableConfig[label] = { rows: {}, rowsOptions: {} };
+        checkboxTableConfig[label] = {
+            rows: {},
+            rowsOptions: {}
+        };
     }
 
     const tbody = table.querySelector('tbody');
@@ -879,7 +891,8 @@ function selectRow(label, rowKey) {
     selectedTableLabel = label;
 
     document.querySelectorAll(`#checkboxTable-${label} tbody tr`).forEach(r => r.classList.remove('table-primary'));
-    const selectedRow = Array.from(document.querySelectorAll(`#checkboxTable-${label} tbody tr`)).find(r => r.dataset.rowKey === rowKey);
+    const selectedRow = Array.from(document.querySelectorAll(`#checkboxTable-${label} tbody tr`)).find(r => r.dataset
+        .rowKey === rowKey);
     if (selectedRow) selectedRow.classList.add('table-primary');
 
     document.getElementById(`settingsPanel-${label}`).style.display = 'block';
@@ -931,12 +944,15 @@ function addColToCheckboxTable(label) {
     });
 
     colLabelInput.value = '';
-     normalizeTableRows(label);
+    normalizeTableRows(label);
 }
 
 function normalizeTableRows(label) {
     const table = document.getElementById(`checkboxTable-${label}`);
-    const config = checkboxTableConfig[label] || { rows: {}, rowsOptions: {} };
+    const config = checkboxTableConfig[label] || {
+        rows: {},
+        rowsOptions: {}
+    };
     const theadRow = table.querySelector('thead tr');
     const desiredTdCount = theadRow.children.length - 1;
     const tbody = table.querySelector('tbody');
@@ -945,8 +961,8 @@ function normalizeTableRows(label) {
 
     rows.forEach(row => {
         const rowKey = row.dataset.rowKey;
-        const inputType = config.rows?.[rowKey] || 'checkbox';
-        const options = config.rowsOptions?.[rowKey] || [];
+        const inputType = config.rows?. [rowKey] || 'checkbox';
+        const options = config.rowsOptions?. [rowKey] || [];
 
         const toggleBtn = `
             <button class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleRowType('${label}', '${rowKey}')">⚙️</button>
@@ -960,13 +976,17 @@ function normalizeTableRows(label) {
                     : `<input type="checkbox" />`
             }</td>`;
         }
-        row.innerHTML += `<td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">×</button></td>`;
+        row.innerHTML +=
+            `<td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">×</button></td>`;
     });
 }
 
 
 function toggleRowType(label, rowKey) {
-    const config = checkboxTableConfig[label] || { rows: {}, rowsOptions: {} };
+    const config = checkboxTableConfig[label] || {
+        rows: {},
+        rowsOptions: {}
+    };
     config.rows[rowKey] = config.rows[rowKey] === 'dropdown' ? 'checkbox' : 'dropdown';
     if (!config.rowsOptions[rowKey]) {
         config.rowsOptions[rowKey] = ['Option 1'];
@@ -1012,23 +1032,23 @@ function removeCheckboxTable(label) {
     if (wrapper) wrapper.remove();
 }
 
-    function bindFieldRemoveButtons() {
-        document.querySelectorAll('.remove-field-btn').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                const field = e.target.closest('.form-element');
-                const groupIndex = parseInt(field.dataset.groupIndex);
-                const elementIndex = parseInt(field.dataset.elementIndex);
+function bindFieldRemoveButtons() {
+    document.querySelectorAll('.remove-field-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const field = e.target.closest('.form-element');
+            const groupIndex = parseInt(field.dataset.groupIndex);
+            const elementIndex = parseInt(field.dataset.elementIndex);
 
-                if (!isNaN(groupIndex) && !isNaN(elementIndex)) {
-                    formStructure[groupIndex].elements.splice(elementIndex, 1);
-                    renderPreviewLayout();
-                    bindSidebarDragEvents();
-                    bindFieldRemoveButtons(); // re-attach
-                }
-            });
+            if (!isNaN(groupIndex) && !isNaN(elementIndex)) {
+                formStructure[groupIndex].elements.splice(elementIndex, 1);
+                renderPreviewLayout();
+                bindSidebarDragEvents();
+                bindFieldRemoveButtons(); // re-attach
+            }
         });
-    }
-    
+    });
+}
+
 function getGroupContent(group, groupIndex) {
     let html = `<div class="accordion-body">`;
 
@@ -1114,7 +1134,7 @@ function getGroupContent(group, groupIndex) {
 }
 
 
-document.addEventListener('dragover', function (e) {
+document.addEventListener('dragover', function(e) {
     const zone = e.target.closest('.drop-zone, .add-more-drop-zone');
     if (zone) {
         e.preventDefault();
@@ -1122,17 +1142,18 @@ document.addEventListener('dragover', function (e) {
     }
 });
 
-document.addEventListener('dragleave', function (e) {
+document.addEventListener('dragleave', function(e) {
     const zone = e.target.closest('.drop-zone, .add-more-drop-zone');
     if (zone) {
         zone.classList.remove('drop-zone-hover');
+
     }
 });
 
 
-document.addEventListener('drop', function (e) {
+document.addEventListener('drop', function(e) {
     e.preventDefault();
-    
+
     document.querySelectorAll('.drop-zone-hover').forEach(zone => {
         zone.classList.remove('drop-zone-hover');
     });
@@ -1144,39 +1165,42 @@ document.addEventListener('drop', function (e) {
     const functionality = e.dataTransfer.getData('functionality') || 'text';
     const groupview = e.dataTransfer.getData('groupview') || 'text';
     const isForm = e.dataTransfer.getData('isform') || '0';
-    const optionsFromDB = draggedElement?.dataset?.options
-    ? JSON.parse(draggedElement.dataset.options)
-    : [];
+    const optionsFromDB = draggedElement?.dataset?.options ?
+        JSON.parse(draggedElement.dataset.options) :
+        [];
 
-    
+
     if (isForm === '1') {
         fetch(`/admin/form-builder/get-child-by-name/${label}`)
             .then(res => res.json())
             .then(children => {
                 if (!Array.isArray(children) || children.length === 0) return;
-    
+
                 const formAccordionLabel = label;
                 const formGroups = [];
                 const simpleElements = [];
-    
+
                 const fetchAllChildren = children.map((groupItem) => {
                     return fetch(`/admin/form-builder/get-child-by-name/${groupItem.name}`)
                         .then(res => res.json())
                         .then(grandChildren => {
                             const optionsArray = grandChildren.map(c => c.name);
-    
+
                             simpleElements.push({
                                 label: groupItem.name,
                                 functionality: functionality,
-                                options: ['select', 'optional', 'radio', 'checkbox', 'multiselect', 'checkbox dropdown', 'button dropdown', 'icon dropdown'].includes(functionality)
-                                    ? optionsArray
-                                    : undefined,
-                                    //  allow_user_options: allowOptions 
+                                options: ['select', 'optional', 'radio', 'checkbox',
+                                        'multiselect', 'checkbox dropdown',
+                                        'button dropdown', 'icon dropdown'
+                                    ].includes(functionality) ?
+                                    optionsArray :
+                                    undefined,
+                                //  allow_user_options: allowOptions 
                             });
 
                         });
                 });
-    
+
                 Promise.all(fetchAllChildren).then(() => {
                     if (simpleElements.length > 0) {
                         formGroups.push({
@@ -1188,7 +1212,7 @@ document.addEventListener('drop', function (e) {
                             hideLayoutSelector: true
                         });
                     }
-    
+
                     formStructure.push({
                         label: formAccordionLabel,
                         elements: [],
@@ -1196,20 +1220,20 @@ document.addEventListener('drop', function (e) {
                         addMoreBlocks: [],
                         groups: formGroups,
                     });
-    
+
                     renderPreviewLayout();
                 });
             })
             .catch(err => {
                 console.error(`❌ Error fetching children for form "${label}":`, err);
             });
-    
+
         return;
     }
-    
-        
-       // 🧩 Custom Handler: LISTVIEW Group Rendering
- const validViewTypes = ['list', 'accordion', 'vertical-tab', 'horizontal-tab', 'tile-view', 'result-view'];
+
+
+    // 🧩 Custom Handler: LISTVIEW Group Rendering
+    const validViewTypes = ['list', 'accordion', 'vertical-tab', 'horizontal-tab', 'tile-view', 'result-view'];
     if (validViewTypes.includes(groupview)) {
         fetch(`/admin/form-builder/get-child-by-name/${label}`)
             .then(res => res.json())
@@ -1225,9 +1249,9 @@ document.addEventListener('drop', function (e) {
                     elements: subElements,
                     columns: 2,
                     addMoreBlocks: [],
-                    viewType: groupview,               // ✅ Store which view type to apply later
+                    viewType: groupview, // ✅ Store which view type to apply later
                     hideLabelHeading: false,
-                    hideLayoutSelector: true          // Optional: layout dropdown can be hidden for views like tile or result
+                    hideLayoutSelector: true // Optional: layout dropdown can be hidden for views like tile or result
                 };
 
                 formStructure.push(group);
@@ -1241,7 +1265,7 @@ document.addEventListener('drop', function (e) {
     }
 
 
-    
+
     //
     const type = e.dataTransfer.getData('type') || 'new';
 
@@ -1271,26 +1295,29 @@ document.addEventListener('drop', function (e) {
         const blockId = dropZone.dataset.blockId;
         const block = formStructure[groupIndex].addMoreBlocks?.find(b => b.id === blockId);
         if (block) {
-            block.fields.push({ label, functionality });
+            block.fields.push({
+                label,
+                functionality
+            });
             renderPreviewLayout();
             return;
         }
     }
 
-if (!formStructure[groupIndex].elements) {
-    formStructure[groupIndex].elements = [];
-}
+    if (!formStructure[groupIndex].elements) {
+        formStructure[groupIndex].elements = [];
+    }
 
-formStructure[groupIndex].elements.push({
-    label,
-    functionality,
-    // allow_user_options: allowOptions,
-    options: optionsFromDB
-});
+    formStructure[groupIndex].elements.push({
+        label,
+        functionality,
+        // allow_user_options: allowOptions,
+        options: optionsFromDB
+    });
 
 
 
-  
+
 
     renderPreviewLayout();
     bindSidebarDragEvents();
@@ -1299,71 +1326,71 @@ formStructure[groupIndex].elements.push({
 
 
 
-    function removeGroup(index) {
-        formStructure.splice(index, 1);
-        renderPreviewLayout();
-    }
+function removeGroup(index) {
+    formStructure.splice(index, 1);
+    renderPreviewLayout();
+}
 
-    function bindSidebarDragEvents() {
-        // 🧩 Sidebar drag elements (left panel)
-        document.querySelectorAll('#elementTabsContent .form-element').forEach(el => {
-            const label = el.dataset.label || el.textContent.trim();
-            const functionality = el.dataset.functionality || 'text';
-            const groupview = el.dataset.groupview || '';
-            const isForm = el.dataset.isform || '0'; // ✅ FIXED: lowercase 'data-isform'
-    
-            el.setAttribute('draggable', 'true');
-            el.setAttribute('data-type', 'new');
-            el.setAttribute('data-label', label);
-            el.setAttribute('data-functionality', functionality); 
-            el.setAttribute('data-groupview', groupview);
-            el.setAttribute('data-isform', isForm); // ✅ ensure consistency
-    
-            el.addEventListener('dragstart', function (e) {
-                e.dataTransfer.setData('type', 'new');
-                e.dataTransfer.setData('label', label);
-                e.dataTransfer.setData('functionality', functionality); 
-                e.dataTransfer.setData('groupview', groupview); 
-                e.dataTransfer.setData('isform', isForm); 
-                e.dataTransfer.setData('optionAllowed', el.dataset.optionAllowed || 'off'); 
- 
-            });
-    
-            el.addEventListener('dragend', function () {
-                draggedElement = null;
-            });
+function bindSidebarDragEvents() {
+    // 🧩 Sidebar drag elements (left panel)
+    document.querySelectorAll('#elementTabsContent .form-element').forEach(el => {
+        const label = el.dataset.label || el.textContent.trim();
+        const functionality = el.dataset.functionality || 'text';
+        const groupview = el.dataset.groupview || '';
+        const isForm = el.dataset.isform || '0'; // ✅ FIXED: lowercase 'data-isform'
+
+        el.setAttribute('draggable', 'true');
+        el.setAttribute('data-type', 'new');
+        el.setAttribute('data-label', label);
+        el.setAttribute('data-functionality', functionality);
+        el.setAttribute('data-groupview', groupview);
+        el.setAttribute('data-isform', isForm); // ✅ ensure consistency
+
+        el.addEventListener('dragstart', function(e) {
+            e.dataTransfer.setData('type', 'new');
+            e.dataTransfer.setData('label', label);
+            e.dataTransfer.setData('functionality', functionality);
+            e.dataTransfer.setData('groupview', groupview);
+            e.dataTransfer.setData('isform', isForm);
+            e.dataTransfer.setData('optionAllowed', el.dataset.optionAllowed || 'off');
+
         });
-    
-        // 🧩 Existing field drag config (form canvas)
-        document.querySelectorAll('#formCanvas .form-element').forEach(el => {
-            const label = el.dataset.label;
-            const functionality = el.dataset.functionality || 'text';
-            const groupview = el.dataset.groupview || '';
-            const isForm = el.dataset.isform || '0';
-    
-            el.setAttribute('draggable', 'true');
-            el.setAttribute('data-type', 'existing');
-            el.setAttribute('data-label', label);
-            el.setAttribute('data-functionality', functionality); 
-            el.setAttribute('data-groupview', groupview);
-            el.setAttribute('data-isform', isForm); // ✅ for consistency
-    
-            el.addEventListener('dragstart', function (e) {
-                draggedElement = this;
-                e.dataTransfer.setData('type', 'existing');
-                e.dataTransfer.setData('label', label);
-                e.dataTransfer.setData('functionality', functionality);
-                e.dataTransfer.setData('groupview', groupview);
-                e.dataTransfer.setData('isform', isForm); 
-                e.dataTransfer.setData('optionAllowed', el.dataset.optionAllowed || 'off'); 
- 
-            });
-    
-            el.addEventListener('dragend', function () {
-                draggedElement = null;
-            });
+
+        el.addEventListener('dragend', function() {
+            draggedElement = null;
         });
-    }
+    });
+
+    // 🧩 Existing field drag config (form canvas)
+    document.querySelectorAll('#formCanvas .form-element').forEach(el => {
+        const label = el.dataset.label;
+        const functionality = el.dataset.functionality || 'text';
+        const groupview = el.dataset.groupview || '';
+        const isForm = el.dataset.isform || '0';
+
+        el.setAttribute('draggable', 'true');
+        el.setAttribute('data-type', 'existing');
+        el.setAttribute('data-label', label);
+        el.setAttribute('data-functionality', functionality);
+        el.setAttribute('data-groupview', groupview);
+        el.setAttribute('data-isform', isForm); // ✅ for consistency
+
+        el.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            e.dataTransfer.setData('type', 'existing');
+            e.dataTransfer.setData('label', label);
+            e.dataTransfer.setData('functionality', functionality);
+            e.dataTransfer.setData('groupview', groupview);
+            e.dataTransfer.setData('isform', isForm);
+            e.dataTransfer.setData('optionAllowed', el.dataset.optionAllowed || 'off');
+
+        });
+
+        el.addEventListener('dragend', function() {
+            draggedElement = null;
+        });
+    });
+}
 
 
 function getOptionAdderHTML(groupIndex, elementIndex) {
@@ -1383,7 +1410,7 @@ function addOption(groupIndex, elementIndex, inputEl) {
     if (!val) return;
 
     const group = resolveNestedGroup(groupIndex);
-    const el = group?.elements?.[elementIndex];
+    const el = group?.elements?. [elementIndex];
     console.log(group);
 
     if (!el) return;
@@ -1412,45 +1439,46 @@ function resolveNestedGroup(indexPath) {
 }
 
 
-    function showFormPreview() {
-        let html = '';
+function showFormPreview() {
+    let html = '';
 
-        formStructure.forEach((group, groupIndex) => {
-            html += `<h4 class="mt-3">${group.label}</h4>`;
+    formStructure.forEach((group, groupIndex) => {
+        html += `<h4 class="mt-3">${group.label}</h4>`;
 
-           html += `<div class="border rounded p-3 mb-3 bg-light">
+        html += `<div class="border rounded p-3 mb-3 bg-light">
             <div class="row">`;
 
-            group.elements.forEach(el => {
-                html += `
+        group.elements.forEach(el => {
+            html += `
                     <div class="col-md-6 mb-3">
                         <label class="form-label">${el.label}</label>
                         ${renderInputByFunctionality(el)}
                     </div>`;
-            });
-            
-            html += `</div></div>`; // Moved out of loop
-
         });
 
-        document.getElementById('formPreviewContent').innerHTML = html;
-        const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
-        modal.show();
-    }
-    
-    function updateGroupColumns(groupIndex, cols) {
-        formStructure[groupIndex].columns = parseInt(cols);
+        html += `</div></div>`; // Moved out of loop
+
+    });
+
+    document.getElementById('formPreviewContent').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
+    modal.show();
+}
+
+function updateGroupColumns(groupIndex, cols) {
+    formStructure[groupIndex].columns = parseInt(cols);
+    renderPreviewLayout();
+}
+
+function updateBlockColumns(groupIndex, blockId, cols) {
+    const block = formStructure[groupIndex].addMoreBlocks.find(b => b.id === blockId);
+
+    if (block) {
+        block.columns = parseInt(cols);
         renderPreviewLayout();
     }
+}
 
-    function updateBlockColumns(groupIndex, blockId, cols) {
-        const block = formStructure[groupIndex].addMoreBlocks.find(b => b.id === blockId);
-         
-        if (block) {
-            block.columns = parseInt(cols);
-            renderPreviewLayout();
-        }
-    }
 function initChipView(label, options) {
     const input = document.getElementById(`chipInput-${label}`);
     const chipBox = document.getElementById(`chipContainer-${label}`);
@@ -1500,7 +1528,8 @@ function initChipView(label, options) {
         selectedChips.forEach((chip, i) => {
             const chipEl = document.createElement("div");
             chipEl.className = "chip d-inline-flex align-items-center";
-            chipEl.style = "padding: 6px 12px; background-color: #e8f5e9; border-radius: 20px; font-size: 14px; border: 1px solid #66bb6a;";
+            chipEl.style =
+                "padding: 6px 12px; background-color: #e8f5e9; border-radius: 20px; font-size: 14px; border: 1px solid #66bb6a;";
 
             const span = document.createElement("span");
             span.textContent = "×";
@@ -1535,14 +1564,12 @@ function initChipView(label, options) {
         }
     });
 
-    document.addEventListener("click", function (e) {
+    document.addEventListener("click", function(e) {
         if (!suggestionBox.contains(e.target) && e.target !== input) {
             suggestionBox.style.display = "none";
         }
     });
 }
-
-
 </script>
 
 

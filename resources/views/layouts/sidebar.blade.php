@@ -219,13 +219,19 @@
                         <span>product</span>
                     </a>
                     </li>
-                    
+                    <li>  
                     <a href="{{ route('prodview') }}">
                         <i data-feather="chevron-right"></i>
                         <span>product View</span>
                     </a>
                     </li>
-                    
+
+                    <li>  
+                    <a href="{{ route('productBuilder') }}">
+                        <i data-feather="chevron-right"></i>
+                        <span>product builder</span>
+                    </a>
+                    </li>
                     
                   </ul>
 

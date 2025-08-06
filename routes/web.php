@@ -726,3 +726,6 @@ Route::post('import',[VehicleController::class, 'importCSV'])->name('import.csv'
 Route::get('product/export/{type}',[vehicleController::class, 'export'])->name('product.export');
 //embed route
 
+//product builder
+Route::get('productBuilder',[VehicleController::class, 'productBuilder'])->name('productBuilder');
+

@@ -269,4 +269,30 @@ public function  export($type = 'csv')
     }
 }
 
+public function productBuilder()
+{
+    $product =  Category::where('id','93829')->first();
+
+    $subproduct = optional($product)
+    ->children()
+    ->where('id',16256)
+    ->first();
+    if(!$subproduct)
+    {
+        abort(404,'product subcategory not found:');
+    }
+    $productsubcategory = $subproduct->children()->where('status','active')->get();
+
+    $groupedsubcategory= [];
+
+    foreach($productsubcategory as $subcategory){
+        if(!is_object($subcategory) || !isset($subcategory->name)){
+            \Log::error("Inviled subcategory:",['data'=>$subcategory]);
+        continue;
+        }
+        $groupedsubcategory[$subcategory->name] = $subcategory->children()->where('status','active')->get();
+    }
+    return view('productBuilder',compact('groupedsubcategory'));
+}
+
 }
