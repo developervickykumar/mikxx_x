@@ -41,5 +41,12 @@ class FormBuilderController extends Controller
         return response()->json(['status' => 'success', 'form_id' => $form->id]);
     }
     
+    public function getChildByName($name)
+{
+    $category = Category::where('name', $name)->first();
+    if (!$category) return response()->json([]);
+    return response()->json($category->children()->where('status', 'active')->get());
+}
+
 
 }

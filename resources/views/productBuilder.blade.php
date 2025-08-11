@@ -135,9 +135,11 @@
 
         <!-- Tab Content -->
         <div class="tab-content p-3" id="elementTabsContent">
+
             @foreach ($groupedSubCategories as $key => $parentCategories)
             <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="tab-{{ strtolower($key) }}"
                 role="tabpanel">
+
                 @if($parentCategories->isEmpty())
                 <p class="text-muted">No {{ $key }} elements available.</p>
                 @else
@@ -146,6 +148,7 @@
                     @php
                     $accordionId = \Illuminate\Support\Str::slug($parent->name . '-' . $key, '_');
                     $children = $parent->children()->where('status', 'active')->get();
+
                     @endphp
 
                     <div class="accordion-item mb-2">
@@ -290,10 +293,112 @@
                 <i class="fas fa-eye me-1"></i> Preview Form
             </button>
         </div>
-
+        <div class="text-end">
+            <button type="button" class="btn btn-soft-secondary btn-sm open-share-modal" data-bs-toggle="modal"
+                data-bs-target="#shareFormModal" data-form-name="" data-form-url="">
+                <i class="mdi mdi-share"></i>
+            </button>
+        </div>
 
         <div class="form-canvas" id="formCanvasWrapper">
+
             <div id="formCanvas"></div>
+
+            <!--product view-->
+            <div id="specialLayout" style="display:none;">
+
+                <div class="container my-5">
+                    {{-- Show Validation Errors --}}
+                    @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
+                    {{-- Show Success Message --}}
+                    @if(session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+                    <h2 class="text-center mb-4">Upload Details</h2>
+
+                    <div class="row">
+                        <div class="col-lg-12  text-end mr-3">
+                            <a href="{{url('/prodview')}}"
+                                class="btn btn btn-outline-info  text-end px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-700 mt-4 ms-2">Black</a>
+                        </div>
+                    </div>
+
+                    <form action="{{ route('vehicle.store') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+
+                        <div class="row">
+
+                            {{-- Level 1 --}}
+                            <div class=" col-md-4 mb-3">
+                                <label class="form-label">Product <span id="label1Text"
+                                        class="fw-bold text-dark"></span>
+
+                                </label>
+                                <select id="level1" name="level1" class="form-select" required>
+                                    <option value="">-- Select --</option>
+                                    @foreach($productTypes as $pt)
+                                    <option value="{{ $pt->id }}">{{ $pt->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Level 2 --}}
+                            <div class=" col-md-4 mb-3">
+                                <label class="form-label">
+                                    <span id="label2Text" class="fw-bold text-dark">
+                                    </span> </label>
+                                <select id="level2" name="level2" class="form-select" required></select>
+                            </div>
+
+                            {{-- Level 3 --}}
+                            <div class=" col-md-4 mb-3">
+                                <label class="form-label">
+                                    <span id="label3Text" class="fw-bold text-dark"></span>
+                                </label>
+                                <select id="level3" name="level3" class="form-select" required></select>
+                            </div>
+                        </div>
+
+                </div>
+
+                {{-- Dynamic Tabs for Fields --}}
+                <div id="dynamicForm" class="mt-4" style="display:none">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <ul class="nav flex-column nav-pills" id="formTabs" role="tablist"
+                                aria-orientation="vertical"></ul>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="tab-content border p-3 rounded mt-2" id="formTabsContent"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary">Submit Vehicle</button>
+                    </div>
+                    </form>
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-outline-primary" onclick="showEmbed()"> Show Embed</button>
+                    </div>
+                    <div id="embedContainer" class="mt-4" style="display:none;">
+                        <h5> Embadded Content</h5>
+                        <div class="ratio ratio-16x9">
+                            <pre><code id="embedHtmlCode" class="language-html"></code></pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
 
             <div class="text-center mt-3">
                 <button class="btn btn-outline-primary" onclick="addNewGroup()">
@@ -324,7 +429,345 @@
     </div>
 </div>
 
+<!-- Share Modal -->
+<div class="modal fade" id="shareFormModal" tabindex="-1" aria-labelledby="shareFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p id="formNameToShare" class="fw-bold"></p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a id="whatsappShare" href="#" class="btn btn-success" target="_blank" title="Share on WhatsApp">
+                        <i class="mdi mdi-whatsapp"></i>
+                    </a>
+                    <a id="facebookShare" href="#" class="btn btn-primary" target="_blank" title="Share on Facebook">
+                        <i class="mdi mdi-facebook"></i>
+                    </a>
+                    <a id="twitterShare" href="#" class="btn btn-info" target="_blank" title="Share on Twitter">
+                        <i class="mdi mdi-twitter"></i>
+                    </a>
+                    <button class="btn btn-secondary copy-link" id="copyFormLink" data-url="">
+                        <i class="mdi mdi-content-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
+
+<div class="modal fade" id="fieldSettingsModal" tabindex="-1" aria-labelledby="fieldSettingsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="fieldSettingsModalLabel">Field Settings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- We'll inject field info here -->
+        <form id="fieldSettingsForm">
+          <div class="mb-3">
+            <label for="fieldNameInput" class="form-label">Field Name</label>
+            <input type="text" class="form-control" id="fieldNameInput">
+          </div>
+          <div class="mb-3">
+            <label for="fieldTypeInput" class="form-label">Field Type</label>
+            <input type="text" class="form-control" id="fieldTypeInput" readonly>
+          </div>
+           <div class="mb-3">
+            <label for="fieldTypeSelect" class="form-label">Field Type</label>
+            <select id="fieldTypeSelect" class="form-select">
+              <option value="text">Text</option>
+              <option value="optional">Dropdown</option>
+              <option value="checkbox">Checkbox</option>
+              <option value="radio">Radio</option>
+              <option value="files">File Upload</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="saveFieldSettingsBtn" class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).on('click', '.open-share-modal', function() {
+    const formName = $(this).data('form-name');
+    const formUrl = $(this).data('form-url');
+
+    $('#formNameToShare').text(`"${formName}"`);
+    $('#whatsappShare').attr('href', `https://wa.me/?text=${encodeURIComponent(formUrl)}`);
+    $('#facebookShare').attr('href',
+        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(formUrl)}`);
+    $('#twitterShare').attr('href', `https://twitter.com/intent/tweet?url=${encodeURIComponent(formUrl)}`);
+    $('#copyFormLink').attr('data-url', formUrl);
+});
+
+$(document).on('click', '#copyFormLink', function() {
+    const url = $(this).data('url');
+    navigator.clipboard.writeText(url).then(function() {
+        alert('Link copied to clipboard!');
+    }, function() {
+        alert('Failed to copy link.');
+    });
+});
+</script>
+
+<script>
+    
+function resetFrom(level) {
+    ['level2', 'level3'].forEach((id, i) => {
+        if (i + 2 >= level) document.getElementById(id).innerHTML = '';
+    });
+    document.getElementById('dynamicForm').style.display = 'none';
+}
+
+function populate(level, data) {
+    const sel = document.getElementById('level' + level);
+    sel.innerHTML = '<option value="">-- Select --</option>';
+    data.forEach(x => {
+        sel.innerHTML += `<option value="${x.id}">${x.name}</option>`;
+    });
+}
+
+function updateLabelText(levelId, labelId) {
+    const select = document.getElementById(levelId);
+    const label = document.getElementById(labelId);
+    const selectOption = select.options[select.selectedIndex];
+    label.textContent = selectOption.value ? selectOption.text : '';
+}
+
+function buildForm(steps) {
+    let tabs = '';
+    let content = '';
+
+    // Common wrapper with buttons for all fields
+    const wrapField = (label, html, stepIndex, fieldIndex) => `
+        <div class="mb-3 position-relative border rounded p-2"
+             data-step-index="${stepIndex}" 
+             data-field-index="${fieldIndex}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="mb-0 fw-bold">${label}</label>
+                <div>
+                    <span class="ms-2 text-danger fw-bold fs-5 remove-field-btn" 
+                          title="Remove Field" style="cursor:pointer;">×</span>
+                    <span class="ms-2 text-primary fw-bold fs-5 field-setting-btn" 
+                          title="Field Setting" style="cursor:pointer;">⋮</span>
+                </div>
+            </div>
+            ${html}
+        </div>
+    `;
+
+    steps.forEach((s, i) => {
+        const active = i === 0 ? 'active' : '';
+        const show = i === 0 ? 'show active' : '';
+
+        // Tabs
+        tabs += `
+            <button class="nav-link ${active}" id="tab-${s.id}-tab" data-bs-toggle="pill"
+                data-bs-target="#tab-${s.id}" type="button" role="tab"
+                aria-controls="tab-${s.id}" aria-selected="${i === 0}">
+                ${s.name}
+            </button>
+        `;
+
+        let tabContent = '';
+        s.child.forEach((f, idx) => {
+            const name = f.name || `field_${idx}`;
+            const safeName = name.replace(/\s+/g, '_').toLowerCase();
+            const func = (f.functionality || 'text').toLowerCase();
+            const children = Array.isArray(f.child) ? f.child : [];
+
+            if (func === 'text') {
+                tabContent += wrapField(name, `<input type="text" name="${safeName}" class="form-control">`, i, idx);
+            }
+            else if (func === 'optional') {
+                tabContent += wrapField(name, 
+                    `<select name="${safeName}_id" class="form-select">
+                        <option value="">--select--</option>
+                        ${children.map(o => `<option value="${o.id}">${o.name}</option>`).join('')}
+                    </select>`, i, idx
+                );
+            }
+            else if (func === 'checkbox') {
+                const checkboxes = children.map((o, index) => {
+                    const checkboxId = `${safeName}_${index}`;
+                    return `
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="${safeName}[]" 
+                                   value="${o.name}" id="${checkboxId}">
+                            <label class="form-check-label" for="${checkboxId}">${o.name}</label>
+                        </div>
+                    `;
+                }).join('');
+                tabContent += wrapField(name, checkboxes, i, idx);
+            }
+            else if (func === 'radio') {
+                const radios = (children.length ? children.map(o => o.name) : ['Yes', 'No'])
+                    .map((v, index) => {
+                        const radioId = `${safeName}_${index}`;
+                        return `
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="${safeName}" value="${v}" id="${radioId}">
+                                <label class="form-check-label" for="${radioId}">${v}</label>
+                            </div>
+                        `;
+                    }).join('');
+                tabContent += wrapField(name, radios, i, idx);
+            }
+            else if (func === 'files') {
+                tabContent += wrapField(name, `<input class="form-control" type="file" name="${safeName}">`, i, idx);
+            }
+            else {
+                tabContent += wrapField(name, `<input class="form-control" type="text" name="${safeName}">`, i, idx);
+            }
+        });
+
+        content += `<div class="tab-pane fade ${show}" id="tab-${s.id}" role="tabpanel" aria-labelledby="tab-${s.id}-tab">${tabContent}</div>`;
+    });
+
+    document.getElementById('formTabs').innerHTML = tabs;
+    document.getElementById('formTabsContent').innerHTML = content;
+    document.getElementById('dynamicForm').style.display = 'block';
+
+    // bind remove events
+    bindDynamicFormRemoveButtons(steps);
+    bindFieldSettingButtons(steps);
+}
+
+function bindDynamicFormRemoveButtons(steps) {
+    document.querySelectorAll('.remove-field-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const field = e.target.closest('[data-step-index][data-field-index]');
+            const stepIndex = parseInt(field.dataset.stepIndex);
+            const fieldIndex = parseInt(field.dataset.fieldIndex);
+
+            if (!isNaN(stepIndex) && !isNaN(fieldIndex)) {
+                // Remove from data
+                steps[stepIndex].child.splice(fieldIndex, 1);
+                // Rebuild form with updated steps
+                buildForm(steps);
+            }
+        });
+    });
+}
+
+function bindFieldSettingButtons(steps){
+    const modalEl =  document.getElementById('fieldSettingsModal');
+    const bootstrapModal = new bootstrap.Modal(modalEl);
+
+    document.querySelectorAll('.field-setting-btn').forEach(btn =>{
+       btn.addEventListener('click', function(e)
+       {
+         const fieldDiv = e.target.closest('[data-step-index][data-field-index]');
+         if(!fieldDiv) return;
+
+         const stepIndex = parseInt(fieldDiv.dataset.stepIndex);
+         const fieldIndex = parseInt(fieldDiv.dataset.fieldIndex);
+
+         if(isNaN(stepIndex) || isNaN(fieldIndex)) return;
+
+         const fieldData = steps[stepIndex].child[fieldIndex];
+
+         document.getElementById('fieldNameInput').value = fieldData.name || '';
+         document.getElementById('fieldTypeInput').value = fieldData.functionality || 'text';
+
+         modalEl.dataset.stepIndex = stepIndex;
+         modalEl.dataset.fieldIndex = fieldIndex;
+
+         bootstrapModal.show();
+         
+       });
+    });
+
+    document.getElementById('saveFieldSettingsbtn').onclick = function()
+    {
+        const stepIndex = parseInt(modalEl.dataset.stepIndex);
+        const fieldIndex = parseInt(modalEl.dataset.stepIndex);
+        if(isNaN(stepIndex) || isNaN(fieldIndex)) return;
+
+        const newName = document.getElementById('fieldNameInput').value.trim();
+        const newType = document.getElementById('fieldTypeInput').value;
+
+        if(newName)
+    {
+        steps[stepIndex].child[fieldIndex].name = newName;
+
+        buildForm(steps);
+
+        
+    }
+    bootstrapModal.hide();
+    };
+}
+
+// Event listeners for cascading dropdowns
+['level1', 'level2', 'level3'].forEach((id, idx) => {
+    document.getElementById(id).addEventListener('change', function() {
+        const level = idx + 2;
+        resetFrom(level);
+        updateLabelText(id, 'label' + (idx + 1) + 'Text');
+
+        if (this.value) {
+            fetch(`/vehicle/fetch-child/${this.value}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (level < 4) {
+                        populate(level, data);
+                    } else if (Array.isArray(data)) {
+                        buildForm(data);
+                    }
+                });
+        }
+    });
+});
+
+
+
+function showEmbed() {
+    const level3 = document.getElementById('level3').value;
+
+    if (!level3) {
+        alert('Please select a valid final category to show embed');
+        return;
+    }
+
+    fetch('/vehicle/fetch-child/' + level3)
+        .then(response => response.json())
+        .then(steps => {
+            if (Array.isArray(steps)) {
+                buildForm(steps);
+                document.getElementById('embedContainer').style.display = 'block';
+
+                setTimeout(() => {
+                    const embedHTML = document.getElementById('dynamicForm').innerHTML;
+                    const encodedHTML = embedHTML
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    document.getElementById('embedHtmlCode').innerHTML = encodedHTML;
+                    document.getElementById('embedHtmlContainer').style.display = 'block';
+                }, 300);
+            } else {
+                alert('No embed data found for selected category.');
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching embed data:', err);
+            alert('Failed to load embed content.');
+        });
+}
+
+
+
+</script>
 
 <script>
 let pendingChipViews = [];
@@ -335,10 +778,14 @@ let draggedElement = null;
 
 let formStructure = []; // [{ label: 'Group 1', elements: [{ label: 'Name' }] }]
 
+
+
 document.getElementById('previewType').addEventListener('change', function() {
     previewType = this.value;
-    conslo
+    console.log(previewType);
     renderPreviewLayout();
+
+
 });
 
 document.getElementById('layoutSelect').addEventListener('change', function() {
@@ -349,13 +796,16 @@ document.getElementById('layoutSelect').addEventListener('change', function() {
 function applyLayout() {
     document.querySelectorAll('.form-element').forEach(el => {
         el.className = `form-element ${layoutClass}`;
+
     });
 }
+
 
 window.addEventListener('DOMContentLoaded', () => {
     bindSidebarDragEvents();
     addNewGroup(); // Default group
     renderPreviewLayout();
+    bindSidebarClickEvent();
 });
 
 function addNewGroup() {
@@ -373,8 +823,11 @@ function addNewGroup() {
 
 function renderPreviewLayout() {
     const container = document.getElementById('formCanvas');
+
     container.innerHTML = '';
-     
+
+    //regular preview rendering
+
     let html = '';
     if (previewType === 'horizontal-tabs') {
         html = `<ul class="nav nav-tabs mb-3" id="tabHeaders"></ul><div class="tab-content" id="tabContents"></div>`;
@@ -393,11 +846,13 @@ function renderPreviewLayout() {
     container.innerHTML = html;
 
     formStructure.forEach((group, index) => {
+
         renderGroup(group, index);
     });
 
     bindSidebarDragEvents(); // ✅ For dragging
     bindFieldRemoveButtons();
+    bindSidebarClickEvent();
 
     if (typeof pendingChipViews !== 'undefined') {
         pendingChipViews.forEach(({
@@ -413,13 +868,14 @@ function renderPreviewLayout() {
 
 
 
+
 function renderGroup(group, index) {
     const groupId = `group-${index + 1}`;
     const label = group.label || `Group ${index + 1}`;
 
     const viewType = group.viewType || previewType; // ✅ use group-level type if available
 
-   
+
     if (viewType === 'horizontal-tabs' || viewType === 'vertical-tabs') {
         const tabHeaders = document.getElementById('tabHeaders');
         const tabContents = document.getElementById('tabContents');
@@ -1044,7 +1500,8 @@ function bindFieldRemoveButtons() {
                 formStructure[groupIndex].elements.splice(elementIndex, 1);
                 renderPreviewLayout();
                 bindSidebarDragEvents();
-                bindFieldRemoveButtons(); // re-attach
+                bindFieldRemoveButtons();
+                bindSidebarClickEvent(); // re-attach
             }
         });
     });
@@ -1079,6 +1536,8 @@ function getGroupContent(group, groupIndex) {
                         data-group-index="${groupIndex}" 
                         data-element-index="${elementIndex}">
                         <span class="float-end ms-2 text-danger fw-bold fs-5 remove-field-btn" title="Remove Field" style="cursor:pointer;">×</span>
+                        <span class="float-end ms-2 text-danger fw-bold fs-5 " title=" Field Setting" style="cursor:pointer;">⋮</span>
+
                         <label class="form-label">${el.label}</label>
                         ${renderInputByFunctionality({
                             ...el,
@@ -1118,6 +1577,7 @@ function getGroupContent(group, groupIndex) {
                              data-label="${field.label}" 
                              data-functionality="${field.functionality}">
                              <span class="float-end ms-2 text-danger fw-bold fs-5 remove-field-btn" title="Remove Field" style="cursor:pointer;">×</span>
+                              <span class="float-end ms-2 text-danger fw-bold fs-5 " title="Field Setting" style="cursor:pointer;">⋮</span>
                              <label class="form-label">${field.label}</label>
                              ${renderInputByFunctionality({
                                 ...field,
@@ -1130,7 +1590,7 @@ function getGroupContent(group, groupIndex) {
         });
     }
 
-    html += `</div>`; // closing .accordion-body
+    html += `</div>`; // closing .accordion-body 
     return html;
 }
 
@@ -1167,8 +1627,7 @@ document.addEventListener('drop', function(e) {
     const groupview = e.dataTransfer.getData('groupview') || 'text';
     const isForm = e.dataTransfer.getData('isform') || '0';
     const optionsFromDB = draggedElement?.dataset?.options ?
-        JSON.parse(draggedElement.dataset.options) :
-        [];
+        JSON.parse(draggedElement.dataset.options) : [];
 
 
     if (isForm === '1') {
@@ -1194,8 +1653,7 @@ document.addEventListener('drop', function(e) {
                                         'multiselect', 'checkbox dropdown',
                                         'button dropdown', 'icon dropdown'
                                     ].includes(functionality) ?
-                                    optionsArray :
-                                    undefined,
+                                    optionsArray : undefined,
                                 //  allow_user_options: allowOptions 
                             });
 
@@ -1236,6 +1694,7 @@ document.addEventListener('drop', function(e) {
     // 🧩 Custom Handler: LISTVIEW Group Rendering
     const validViewTypes = ['list', 'accordion', 'vertical-tab', 'horizontal-tab', 'tile-view', 'result-view'];
     if (validViewTypes.includes(groupview)) {
+        console.log(groupview);
         fetch(`/admin/form-builder/get-child-by-name/${label}`)
             .then(res => res.json())
             .then(children => {
@@ -1322,6 +1781,7 @@ document.addEventListener('drop', function(e) {
 
     renderPreviewLayout();
     bindSidebarDragEvents();
+    bindSidebarClickEvent();
 });
 
 
@@ -1360,15 +1820,20 @@ function bindSidebarDragEvents() {
         el.addEventListener('dragend', function() {
             draggedElement = null;
         });
+
+
+
+
     });
 
     // 🧩 Existing field drag config (form canvas)
     document.querySelectorAll('#formCanvas .form-element').forEach(el => {
+
         const label = el.dataset.label;
         const functionality = el.dataset.functionality || 'text';
         const groupview = el.dataset.groupview || '';
         const isForm = el.dataset.isform || '0';
-
+        //console.log(functionality);
         el.setAttribute('draggable', 'true');
         el.setAttribute('data-type', 'existing');
         el.setAttribute('data-label', label);
@@ -1391,8 +1856,44 @@ function bindSidebarDragEvents() {
             draggedElement = null;
         });
     });
+
+
 }
 
+
+function bindSidebarClickEvent() {
+    document.querySelectorAll('#elementTabsContent .form-element').forEach(el => {
+        const label = el.dataset.label || el.textContent.trim();
+
+        // ✅ Only for Household or Industrial
+        if (label === 'Household Products' || label === 'Industrial Products') {
+
+            el.addEventListener('click', function() {
+                const functionality = el.dataset.functionality || 'text';
+                const groupview = el.dataset.groupview || '';
+                const isForm = el.dataset.isform || '0';
+                const optionAllowed = el.dataset.optionAllowed || 'off';
+
+                // 🔄 Hide formCanvas
+                document.querySelector('#formCanvas').style.display = 'none';
+
+                // 📌 Show specialLayout
+                const specialLayout = document.querySelector('#specialLayout');
+                specialLayout.style.display = 'block';
+
+                // (Optional) Change heading based on clicked label
+                specialLayout.querySelector('.alert').innerText =
+                    `Special Layout for ${label}`;
+
+                // (Optional) Prefill product name input
+                const productNameInput = specialLayout.querySelector('input[type="text"]');
+                if (productNameInput) {
+                    productNameInput.value = label;
+                }
+            });
+        }
+    });
+}
 
 function getOptionAdderHTML(groupIndex, elementIndex) {
     return `
@@ -1412,7 +1913,7 @@ function addOption(groupIndex, elementIndex, inputEl) {
 
     const group = resolveNestedGroup(groupIndex);
     const el = group?.elements?. [elementIndex];
-    console.log(group);
+    //console.log(group);
 
     if (!el) return;
 
@@ -1440,7 +1941,7 @@ function resolveNestedGroup(indexPath) {
 }
 
 
-function showFormPreview() {
+/*function showFormPreview() {
     let html = '';
 
     formStructure.forEach((group, groupIndex) => {
@@ -1461,6 +1962,73 @@ function showFormPreview() {
 
     });
 
+    document.getElementById('formPreviewContent').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
+    modal.show();
+}
+function showFormPreview() {
+    let html = '';
+
+    // Step 1: Get your special layout HTML
+    const specialLayoutHTML = document.getElementById('specialLayout').innerHTML;
+
+    // Step 2: Add it first
+    html += `<div>${specialLayoutHTML}</div>`;
+
+    // Step 3: Now add your normal formStructure preview
+    formStructure.forEach((group, groupIndex) => {
+        html += `<h4 class="mt-3">${group.label}</h4>`;
+
+        html += `<div class="border rounded p-3 mb-3 bg-light">
+            <div class="row">`;
+
+        group.elements.forEach(el => {
+            html += `
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">${el.label}</label>
+                    ${renderInputByFunctionality(el)}
+                </div>`;
+        });
+
+        html += `</div></div>`;
+    });
+
+    // Step 4: Inject into modal and show
+    document.getElementById('formPreviewContent').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
+    modal.show();
+}*/
+function showFormPreview() {
+    let html = '';
+
+    // Special layout ka HTML le lo
+    const specialLayoutElement = document.getElementById('specialLayout');
+    if (specialLayoutElement) {
+        html += `<div>${specialLayoutElement.innerHTML}</div>`;
+    }
+
+    // Dynamic form structure ka preview
+    formStructure.forEach((group, groupIndex) => {
+        html += `<h4 class="mt-3">${group.label}</h4>`;
+
+        html += `
+            <div class="border rounded p-3 mb-3 bg-light">
+                <div class="row">
+        `;
+
+        group.elements.forEach(el => {
+            html += `
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">${el.label}</label>
+                    ${renderInputByFunctionality(el)}
+                </div>
+            `;
+        });
+
+        html += `</div></div>`; // close row & container
+    });
+
+    // Modal me inject karke show karo
     document.getElementById('formPreviewContent').innerHTML = html;
     const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
     modal.show();

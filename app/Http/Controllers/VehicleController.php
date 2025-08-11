@@ -307,8 +307,11 @@ public function productBuilder()
         $functionalityCategories = $functionalityCategory ? $functionalityCategory->children()->where('status', 'active')->get() : [];
         
         $defaultForms = Category::where('label->label', 'Form')->get();
-
-     return view('backend.builder.index', [
+        
+         $rootParentId = 93829;
+        $productTypes = Category::where('parent_id', $rootParentId)->get();
+        
+     return view('productBuilder', [
             'groupedSubCategories' => $groupedSubCategories,
             'formCategory' => $formCategory,
             'modules' => $modules,
@@ -316,7 +319,7 @@ public function productBuilder()
             'pageCategories'=>$pageCategories, 
             'functionalityCategories'=>$functionalityCategories,
              'defaultForms'=> $defaultForms,
-
+             'productTypes'=>$productTypes,
         ]);
 }
 

@@ -374,7 +374,7 @@ function addNewGroup() {
 function renderPreviewLayout() {
     const container = document.getElementById('formCanvas');
     container.innerHTML = '';
-     console.log(container.innerHTML);
+     
     let html = '';
     if (previewType === 'horizontal-tabs') {
         html = `<ul class="nav nav-tabs mb-3" id="tabHeaders"></ul><div class="tab-content" id="tabContents"></div>`;
@@ -419,7 +419,7 @@ function renderGroup(group, index) {
 
     const viewType = group.viewType || previewType; // ✅ use group-level type if available
 
-    console.log(group);
+  
     if (viewType === 'horizontal-tabs' || viewType === 'vertical-tabs') {
         const tabHeaders = document.getElementById('tabHeaders');
         const tabContents = document.getElementById('tabContents');
@@ -543,6 +543,7 @@ function renderGroup(group, index) {
 
 
 function addMoreToGroup(groupIndex) {
+    
     const label = `Field ${formStructure[groupIndex].elements.length + 1}`;
     formStructure[groupIndex].elements.push({
         label: label,
@@ -559,7 +560,7 @@ function renderInputByFunctionality(el) {
     const label = el.label || '';
     const functionality = (el.functionality || 'text').toLowerCase();
     const options = el.options || [];
-
+       
     switch (functionality) {
         // === Standard Types ===
 
@@ -1339,7 +1340,7 @@ function bindSidebarDragEvents() {
         const functionality = el.dataset.functionality || 'text';
         const groupview = el.dataset.groupview || '';
         const isForm = el.dataset.isform || '0'; // ✅ FIXED: lowercase 'data-isform'
-
+             
         el.setAttribute('draggable', 'true');
         el.setAttribute('data-type', 'new');
         el.setAttribute('data-label', label);
@@ -1360,6 +1361,7 @@ function bindSidebarDragEvents() {
         el.addEventListener('dragend', function() {
             draggedElement = null;
         });
+        
     });
 
     // 🧩 Existing field drag config (form canvas)

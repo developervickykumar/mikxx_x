@@ -51,7 +51,17 @@ class BuilderController extends Controller
         
             $modules = Category::where('name', 'modules')->first();
     
-   
+   $userCategory = Category::where('name', 'user')->first();
+        $userCategories = $userCategory ? $userCategory->children()->where('status', 'active')->get() : [];
+
+        $pageCategory = Category::where('name', 'pages')->first(); 
+        $pageCategories = $pageCategory ? $pageCategory->children()->where('status', 'active')->get() : [];
+
+        $functionalityCategory = Category::where('name', 'functionality')->first(); 
+        $functionalityCategories = $functionalityCategory ? $functionalityCategory->children()->where('status', 'active')->get() : [];
+        
+        $defaultForms = Category::where('label->label', 'Form')->get();
+        
         return view('backend.builder.index', [
             'groupedSubCategories' => $groupedSubCategories,
             'formCategory' => $formCategory,
