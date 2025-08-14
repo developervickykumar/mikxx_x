@@ -459,43 +459,140 @@
 </div>
 
 
-<div class="modal fade" id="fieldSettingsModal" tabindex="-1" aria-labelledby="fieldSettingsModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="fieldSettingsModalLabel">Field Settings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- We'll inject field info here -->
-        <form id="fieldSettingsForm">
-          <div class="mb-3">
-            <label for="fieldNameInput" class="form-label">Field Name</label>
-            <input type="text" class="form-control" id="fieldNameInput">
-          </div>
-          <div class="mb-3">
-            <label for="fieldTypeInput" class="form-label">Field Type</label>
-            <input type="text" class="form-control" id="fieldTypeInput" readonly>
-          </div>
-           <div class="mb-3">
-            <label for="fieldTypeSelect" class="form-label">Field Type</label>
-            <select id="fieldTypeSelect" class="form-select">
-              <option value="text">Text</option>
-              <option value="optional">Dropdown</option>
-              <option value="checkbox">Checkbox</option>
-              <option value="radio">Radio</option>
-              <option value="files">File Upload</option>
-            </select>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" id="saveFieldSettingsBtn" class="btn btn-primary">Save Changes</button>
-      </div>
+<div class="modal fade" id="fieldSettingsModal" tabindex="-1" aria-labelledby="fieldSettingsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="fieldSettingsModalLabel">Field Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="fieldSettingsForm">
+                    <div class="mb-3">
+                        <label for="fieldNameInput" class="form-label">Field Name</label>
+                        <input type="text" class="form-control" id="fieldNameInput">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fieldTypeInput" class="form-label">Current Field Type</label>
+                        <input type="text" class="form-control" id="fieldTypeInput" readonly>
+                    </div>
+                    <div class="mb-3 col-md-6">
+                        <label for="fieldTypeSelect" class="form-label">Functionality</label>
+                        <select name="functionality" id="fieldTypeSelect" class="form-control">
+                            <!-- Standard Types -->
+                            <optgroup label="Standard Types">
+                                <option value="Optional" data-cond="optional">Optional</option>
+                                <option value="Checkbox" data-cond="checkbox">Checkbox</option>
+                                <option value="MultiSelect" data-cond="multiselect">MultiSelect
+                                </option>
+                                <option value="Radio" data-cond="radio">Radio</option>
+                                <option value="Text" data-cond="text">Text</option>
+                                <option value="Email" data-cond="email">Email</option>
+                                <option value="Contact-Number" data-cond="contact-number">Contact
+                                    Number</option>
+                                <option value="Description" data-cond="description">Description
+                                </option>
+                                <option value="Unit" data-cond="unit">Unit</option>
+                                <option value="Price" data-cond="price">Price</option>
+                                <option value="Rating" data-cond="rating">Rating</option>
+                                <option value="Range" data-cond="range">Range</option>
+                                <option value="Review" data-cond="review">Review</option>
+                                <option value="Table" data-cond="table">Table</option>
+                                <option value="Table-Checkbox" data-cond="table-checkbox">Table
+                                    Checkbox</option>
+                                <option value="Column-Table" data-cond="column-table">Column Table
+                                </option>
+                            </optgroup>
+
+                            <!-- Dynamic Element Types -->
+                            <optgroup label="Dynamic Element Types">
+                                <option value="Chip View" data-cond="chip-view">Chip View</option>
+                                <option value="Expandable-Dropdown" data-cond="expandable-dropdown">
+                                    Expandable Dropdown</option>
+                                <option value="Checkbox-Dropdown" data-cond="checkbox-dropdown">
+                                    Checkbox Dropdown</option>
+                                <option value="Button-Dropdown" data-cond="button-dropdown">Button
+                                    Dropdown</option>
+                                <option value="Icon-Dropdown" data-cond="icon-dropdown">Icon
+                                    Dropdown</option>
+                                <option value="Checkbox-Row-Table" data-cond="checkbox-row-table">
+                                    Checkbox Row Table</option>
+                                <option value="Checkbox-Column-Table" data-cond="checkbox-column-table">Checkbox Column
+                                    Table</option>
+                                <option value="Multiple-Text-Fields" data-cond="multiple-text-fields">Multiple Text
+                                    Fields</option>
+                                <option value="Checklist" data-cond="checklist">Checklist</option>
+                                <option value="Dynamic-Textbox" data-cond="dynamic-textbox">Dynamic
+                                    Textbox</option>
+                                <option value="Data Grid" data-cond="data-grid">Data Grid</option>
+                                <option value="Scrollable-Description" data-cond="scrollable-description">Scrollable
+                                    Description
+                                </option>
+                                <option value="MultiSelect-Grid" data-cond="multiselect-grid">
+                                    MultiSelect Grid</option>
+                                <option value="Progress-Bar" data-cond="progress-bar">Progress Bar
+                                </option>
+                                <option value="Orderable-List" data-cond="orderable-list">Orderable
+                                    List</option>
+                                <option value="Sliders-with-Result" data-cond="sliders-with-result">
+                                    Sliders with Result</option>
+                                <option value="Range-Slider" data-cond="range-slider">Range Slider
+                                </option>
+                                <option value="Code-Editor" data-cond="code-editor">Code Editor
+                                </option>
+                                <option value="Color-Picker" data-cond="color-picker">Color Picker
+                                </option>
+                                <option value="Cloth-Size" data-cond="cloth-size">Cloth Size
+                                </option>
+                                <option value="Shoe-Size" data-cond="shoe-size">Shoe Size</option>
+                                <option value="Text-Editor" data-cond="text-editor">Text Editor
+                                </option>
+                            </optgroup>
+
+                            <!-- Date & Time Types -->
+                            <optgroup label="Date & Time Types">
+                                <option value="Date" data-cond="date">Date</option>
+                                <option value="Date-Time" data-cond="date-time">Date & Time
+                                </option>
+                                <option value="Last-Date" data-cond="last-date">Last Date</option>
+                                <option value="Previous-Date" data-cond="previous-date">Previous
+                                    Date</option>
+                                <option value="Date-Range" data-cond="date-range">Date Range
+                                </option>
+                                <option value="Time" data-cond="time">Time</option>
+                                <option value="Timer" data-cond="timer">Timer</option>
+                                <option value="Date-Reservation" data-cond="date-reservation">Date
+                                    Reservation</option>
+                            </optgroup>
+
+                            <!-- Media -->
+                            <optgroup label="Media">
+                                <option value="Logo" data-cond="logo">Logo</option>
+                                <option value="Image" data-cond="image">Image</option>
+                                <option value="Banner" data-cond="banner">Banner</option>
+                                <option value="Album" data-cond="album">Album</option>
+                                <option value="Video" data-cond="video">Video</option>
+                                <option value="Files" data-cond="files">Files</option>
+                                <option value="Presentation" data-cond="presentation">Presentation
+                                </option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label fw-bold">Live Preview:</label>
+                        <div id="fieldPreview" class="border rounded p-2 bg-light"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="saveFieldSettingsBtn" class="btn btn-primary">Save Changes</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
+
 
 <script>
 $(document).on('click', '.open-share-modal', function() {
@@ -521,7 +618,6 @@ $(document).on('click', '#copyFormLink', function() {
 </script>
 
 <script>
-    
 function resetFrom(level) {
     ['level2', 'level3'].forEach((id, i) => {
         if (i + 2 >= level) document.getElementById(id).innerHTML = '';
@@ -587,17 +683,16 @@ function buildForm(steps) {
             const children = Array.isArray(f.child) ? f.child : [];
 
             if (func === 'text') {
-                tabContent += wrapField(name, `<input type="text" name="${safeName}" class="form-control">`, i, idx);
-            }
-            else if (func === 'optional') {
-                tabContent += wrapField(name, 
+                tabContent += wrapField(name,
+                    `<input type="text" name="${safeName}" class="form-control">`, i, idx);
+            } else if (func === 'optional') {
+                tabContent += wrapField(name,
                     `<select name="${safeName}_id" class="form-select">
                         <option value="">--select--</option>
                         ${children.map(o => `<option value="${o.id}">${o.name}</option>`).join('')}
                     </select>`, i, idx
                 );
-            }
-            else if (func === 'checkbox') {
+            } else if (func === 'checkbox') {
                 const checkboxes = children.map((o, index) => {
                     const checkboxId = `${safeName}_${index}`;
                     return `
@@ -609,8 +704,7 @@ function buildForm(steps) {
                     `;
                 }).join('');
                 tabContent += wrapField(name, checkboxes, i, idx);
-            }
-            else if (func === 'radio') {
+            } else if (func === 'radio') {
                 const radios = (children.length ? children.map(o => o.name) : ['Yes', 'No'])
                     .map((v, index) => {
                         const radioId = `${safeName}_${index}`;
@@ -622,16 +716,98 @@ function buildForm(steps) {
                         `;
                     }).join('');
                 tabContent += wrapField(name, radios, i, idx);
+            } else if (func === 'files' || func === 'presentation') {
+                tabContent += wrapField(name,
+                    `<input class="form-control" type="file" name="${safeName}">`, i, idx);
             }
-            else if (func === 'files') {
-                tabContent += wrapField(name, `<input class="form-control" type="file" name="${safeName}">`, i, idx);
-            }
+            else if(func === 'multiselect')
+                {
+                    tabContent += wrapField(name, `<select name="${safeName}[]" class="form-select" multiple>
+                ${children.map(o=> `<option value="${o.id}">${o.name} </option>`).join('')}
+                </select>`, i, idx
+                    );
+                } 
+                else if(func === 'email')
+                {
+                    tabContent += wrapField(name, `<input type="email" name="${safeName}" class="form-control">`, i, idx);
+                }
+                else if(func === 'contact-number')
+                {
+                    tabContent += wrapField(name, `<input type="tel" name="${safeName}" class="form-control" pattern="[0-9]{10}">`, i, idx);
+                }
+                else if(func === 'description')
+                {
+                    tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="3"></textarea>`, i, idx);
+                }
+                else if(func === 'unit')
+                {
+                    tabContent += wrapField(name, `<input name="${safeName}" type="text" class="form-control" placeholder="Unit">`, i, idx);
+                }
+                else if(func === 'price')
+                {
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" placeholder="Price">`, i, idx);
+                }
+               else if(func === 'rating')
+               {
+                 tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" min="0" max="5" step="0.1">`,i, idx);
+               }
+               else if(func === 'range')
+               {
+                tabContent += wrapField(name, `<input type="range" name="${safeName}" class="form-range" min="0" max="100">`, i, idx );
+               }
+               else if(func === 'review')
+               {
+                tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="4" placeholder="write your review"></textarea>`, i, idx);
+               }
+               else if(func === 'table')
+               {
+                tabContent += wrapField(name,`<table class="table table-bordered"><tr><th>column1</th><th>column 2</th></tr><table>`,i, idx);
+               }
+               else if(func === 'table-checkbox')
+               {
+                tabContent += wrapField(name, `<table class="table table-bordered">
+                                            <tr><th>Select</th><th> Item</th><tr>
+                                            ${children.map(o=> `
+                                            <tr>
+                                            <td><input name="${safeName}[]" type="checkbox" value="${o.name}"></td>
+                                            <td>${o.name}</td>
+                                            </tr>
+
+                `).join('')}
+                </table>`, i, idx);
+               }
+              else if(func === 'column-table')
+              {
+                tabContent += wrapField(name,`<table class="table table-striped"><tr><th>Column A</th><th> Column B</th></tr><table>`, i, idx);
+              }
+              else if(func === 'logo' || func === 'image' || func === 'banner' || func === 'album')
+              {
+                tabContent += wrapField(name, `<input class="form-control" type="file" name="${safeName}" accept="image/*">`,i, idx);
+              }
+               else if(func === 'video')
+               {
+                tabContent += wrapField(name, `<input class="form-control" type="file" accept="video/*"name="${safeName}">`,i , idx);
+               }
+               else if(func === 'date')
+               {
+                 tabContent += wrapField(name, `<input type="date" class="form-control" name="${safaName}">`,i, idx);
+               }
+               else if(func ===  'date-time')
+               {
+                  tabContent += wrapField(name, `<input type="datetime-local" name="${safeName}" class="form-control">`, i, idx);
+               }
+               else if(func === 'time')
+               {
+                 tabContent += wrapField(name, `<input type="time" name="${safeName}" class="form-control">`, i, idx);
+               }
             else {
-                tabContent += wrapField(name, `<input class="form-control" type="text" name="${safeName}">`, i, idx);
+                tabContent += wrapField(name,
+                    `<input class="form-control" type="text" name="${safeName}">`, i, idx);
             }
         });
 
-        content += `<div class="tab-pane fade ${show}" id="tab-${s.id}" role="tabpanel" aria-labelledby="tab-${s.id}-tab">${tabContent}</div>`;
+        content +=
+            `<div class="tab-pane fade ${show}" id="tab-${s.id}" role="tabpanel" aria-labelledby="tab-${s.id}-tab">${tabContent}</div>`;
     });
 
     document.getElementById('formTabs').innerHTML = tabs;
@@ -660,54 +836,91 @@ function bindDynamicFormRemoveButtons(steps) {
     });
 }
 
-function bindFieldSettingButtons(steps){
-    const modalEl =  document.getElementById('fieldSettingsModal');
+
+
+function bindFieldSettingButtons(steps) {
+    const modalEl = document.getElementById('fieldSettingsModal');
     const bootstrapModal = new bootstrap.Modal(modalEl);
+    const fieldPreview = document.getElementById('fieldPreview');
 
-    document.querySelectorAll('.field-setting-btn').forEach(btn =>{
-       btn.addEventListener('click', function(e)
-       {
-         const fieldDiv = e.target.closest('[data-step-index][data-field-index]');
-         if(!fieldDiv) return;
+    document.querySelectorAll('.field-setting-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const fieldDiv = e.target.closest('[data-step-index][data-field-index]');
+            if (!fieldDiv) return;
 
-         const stepIndex = parseInt(fieldDiv.dataset.stepIndex);
-         const fieldIndex = parseInt(fieldDiv.dataset.fieldIndex);
+            const stepIndex = parseInt(fieldDiv.dataset.stepIndex);
+            const fieldIndex = parseInt(fieldDiv.dataset.fieldIndex);
+            if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
 
-         if(isNaN(stepIndex) || isNaN(fieldIndex)) return;
+            const fieldData = steps[stepIndex].child[fieldIndex];
 
-         const fieldData = steps[stepIndex].child[fieldIndex];
+            document.getElementById('fieldNameInput').value = fieldData.name || '';
+            document.getElementById('fieldTypeInput').value = fieldData.functionality || 'text';
+            document.getElementById('fieldTypeSelect').value = fieldData.functionality || 'text';
 
-         document.getElementById('fieldNameInput').value = fieldData.name || '';
-         document.getElementById('fieldTypeInput').value = fieldData.functionality || 'text';
+            modalEl.dataset.stepIndex = stepIndex;
+            modalEl.dataset.fieldIndex = fieldIndex;
 
-         modalEl.dataset.stepIndex = stepIndex;
-         modalEl.dataset.fieldIndex = fieldIndex;
+            // Show live preview
+            updateFieldPreview(fieldData.functionality || 'text', fieldData.name);
 
-         bootstrapModal.show();
-         
-       });
+            bootstrapModal.show();
+        });
     });
 
-    document.getElementById('saveFieldSettingsbtn').onclick = function()
-    {
+    // Live preview when dropdown changes
+    document.getElementById('fieldTypeSelect').addEventListener('change', function() {
         const stepIndex = parseInt(modalEl.dataset.stepIndex);
-        const fieldIndex = parseInt(modalEl.dataset.stepIndex);
-        if(isNaN(stepIndex) || isNaN(fieldIndex)) return;
+        const fieldIndex = parseInt(modalEl.dataset.fieldIndex);
+        if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
+
+        const newType = this.value;
+        const name = document.getElementById('fieldNameInput').value || 'Field';
+        updateFieldPreview(newType, name);
+    });
+
+    // Save button
+    document.getElementById('saveFieldSettingsBtn').onclick = function() {
+        const stepIndex = parseInt(modalEl.dataset.stepIndex);
+        const fieldIndex = parseInt(modalEl.dataset.fieldIndex);
+        if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
 
         const newName = document.getElementById('fieldNameInput').value.trim();
-        const newType = document.getElementById('fieldTypeInput').value;
+        const newType = document.getElementById('fieldTypeSelect').value;
 
-        if(newName)
-    {
-        steps[stepIndex].child[fieldIndex].name = newName;
+        if (newName) steps[stepIndex].child[fieldIndex].name = newName;
+        if (newType) steps[stepIndex].child[fieldIndex].functionality = newType;
 
         buildForm(steps);
-
-        
-    }
-    bootstrapModal.hide();
+        bootstrapModal.hide();
     };
+
+    // Helper for preview rendering
+    function updateFieldPreview(type, label) {
+        label = label || 'Field';
+        type = type.toLowerCase();
+        let html = '';
+
+        if (type === 'text') {
+            html = `<input type="text" class="form-control" placeholder="${label}">`;
+        } else if (type === 'optional') {
+            html = `<select class="form-select"><option>-- Select --</option></select>`;
+        } else if (type === 'checkbox') {
+            html =
+                `<div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label">${label}</label></div>`;
+        } else if (type === 'radio') {
+            html =
+                `<div class="form-check"><input class="form-check-input" type="radio" name="preview"><label class="form-check-label">${label}</label></div>`;
+        } else if (type === 'files') {
+            html = `<input type="file" class="form-control">`;
+        } else {
+            html = `<input type="text" class="form-control" placeholder="${label}">`;
+        }
+
+        fieldPreview.innerHTML = html;
+    }
 }
+
 
 // Event listeners for cascading dropdowns
 ['level1', 'level2', 'level3'].forEach((id, idx) => {
@@ -764,9 +977,6 @@ function showEmbed() {
             alert('Failed to load embed content.');
         });
 }
-
-
-
 </script>
 
 <script>
@@ -1941,98 +2151,51 @@ function resolveNestedGroup(indexPath) {
 }
 
 
-/*function showFormPreview() {
+```
+function showFormPreview() {
     let html = '';
 
-    formStructure.forEach((group, groupIndex) => {
-        html += `<h4 class="mt-3">${group.label}</h4>`;
+    // Check which section is visible/active
+    const productTypeVisible = document.getElementById('specialLayout')?.offsetParent !== null;
+    const groupFormVisible = document.getElementById('groupFormContainer')?.offsetParent !== null;
 
-        html += `<div class="border rounded p-3 mb-3 bg-light">
-            <div class="row">`;
+    if (productTypeVisible) {
+        // Show product type layout only
+        const specialLayoutElement = document.getElementById('specialLayout');
+        if (specialLayoutElement) {
+              const clone = specialLayoutElement.cloneNode(true);
+            clone.style.display = 'block'; // Make it visible in preview
 
-        group.elements.forEach(el => {
-            html += `
+            // If you want ALL tabs to be visible in preview
+            clone.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.add('show', 'active');
+            html += `<div>${specialLayoutElement.innerHTML}</div>`;
+        }
+    } 
+    else if (groupFormVisible) {
+        // Show only group form preview
+        formStructure.forEach((group) => {
+            html += `<h4 class="mt-3">${group.label}</h4>`;
+            html += `<div class="border rounded p-3 mb-3 bg-light"><div class="row">`;
+
+            group.elements.forEach(el => {
+                html += `
                     <div class="col-md-6 mb-3">
                         <label class="form-label">${el.label}</label>
                         ${renderInputByFunctionality(el)}
-                    </div>`;
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
         });
-
-        html += `</div></div>`; // Moved out of loop
-
-    });
-
-    document.getElementById('formPreviewContent').innerHTML = html;
-    const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
-    modal.show();
-}
-function showFormPreview() {
-    let html = '';
-
-    // Step 1: Get your special layout HTML
-    const specialLayoutHTML = document.getElementById('specialLayout').innerHTML;
-
-    // Step 2: Add it first
-    html += `<div>${specialLayoutHTML}</div>`;
-
-    // Step 3: Now add your normal formStructure preview
-    formStructure.forEach((group, groupIndex) => {
-        html += `<h4 class="mt-3">${group.label}</h4>`;
-
-        html += `<div class="border rounded p-3 mb-3 bg-light">
-            <div class="row">`;
-
-        group.elements.forEach(el => {
-            html += `
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">${el.label}</label>
-                    ${renderInputByFunctionality(el)}
-                </div>`;
-        });
-
-        html += `</div></div>`;
-    });
-
-    // Step 4: Inject into modal and show
-    document.getElementById('formPreviewContent').innerHTML = html;
-    const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
-    modal.show();
-}*/
-function showFormPreview() {
-    let html = '';
-
-    // Special layout ka HTML le lo
-    const specialLayoutElement = document.getElementById('specialLayout');
-    if (specialLayoutElement) {
-        html += `<div>${specialLayoutElement.innerHTML}</div>`;
     }
 
-    // Dynamic form structure ka preview
-    formStructure.forEach((group, groupIndex) => {
-        html += `<h4 class="mt-3">${group.label}</h4>`;
-
-        html += `
-            <div class="border rounded p-3 mb-3 bg-light">
-                <div class="row">
-        `;
-
-        group.elements.forEach(el => {
-            html += `
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">${el.label}</label>
-                    ${renderInputByFunctionality(el)}
-                </div>
-            `;
-        });
-
-        html += `</div></div>`; // close row & container
-    });
-
-    // Modal me inject karke show karo
+    // Inject HTML into modal and show
     document.getElementById('formPreviewContent').innerHTML = html;
     const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
     modal.show();
-}
+}```
 
 function updateGroupColumns(groupIndex, cols) {
     formStructure[groupIndex].columns = parseInt(cols);
