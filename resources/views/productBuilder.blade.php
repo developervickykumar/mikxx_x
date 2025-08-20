@@ -408,8 +408,6 @@
         </div>
 
 
-
-
     </div>
 </div>
 
@@ -480,103 +478,18 @@
                     <div class="mb-3 col-md-6">
                         <label for="fieldTypeSelect" class="form-label">Functionality</label>
                         <select name="functionality" id="fieldTypeSelect" class="form-control">
+
                             <!-- Standard Types -->
-                            <optgroup label="Standard Types">
-                                <option value="Optional" data-cond="optional">Optional</option>
-                                <option value="Checkbox" data-cond="checkbox">Checkbox</option>
-                                <option value="MultiSelect" data-cond="multiselect">MultiSelect
-                                </option>
-                                <option value="Radio" data-cond="radio">Radio</option>
-                                <option value="Text" data-cond="text">Text</option>
-                                <option value="Email" data-cond="email">Email</option>
-                                <option value="Contact-Number" data-cond="contact-number">Contact
-                                    Number</option>
-                                <option value="Description" data-cond="description">Description
-                                </option>
-                                <option value="Unit" data-cond="unit">Unit</option>
-                                <option value="Price" data-cond="price">Price</option>
-                                <option value="Rating" data-cond="rating">Rating</option>
-                                <option value="Range" data-cond="range">Range</option>
-                                <option value="Review" data-cond="review">Review</option>
-                                <option value="Table" data-cond="table">Table</option>
-                                <option value="Table-Checkbox" data-cond="table-checkbox">Table
-                                    Checkbox</option>
-                                <option value="Column-Table" data-cond="column-table">Column Table
-                                </option>
-                            </optgroup>
 
-                            <!-- Dynamic Element Types -->
-                            <optgroup label="Dynamic Element Types">
-                                <option value="Chip View" data-cond="chip-view">Chip View</option>
-                                <option value="Expandable-Dropdown" data-cond="expandable-dropdown">
-                                    Expandable Dropdown</option>
-                                <option value="Checkbox-Dropdown" data-cond="checkbox-dropdown">
-                                    Checkbox Dropdown</option>
-                                <option value="Button-Dropdown" data-cond="button-dropdown">Button
-                                    Dropdown</option>
-                                <option value="Icon-Dropdown" data-cond="icon-dropdown">Icon
-                                    Dropdown</option>
-                                <option value="Checkbox-Row-Table" data-cond="checkbox-row-table">
-                                    Checkbox Row Table</option>
-                                <option value="Checkbox-Column-Table" data-cond="checkbox-column-table">Checkbox Column
-                                    Table</option>
-                                <option value="Multiple-Text-Fields" data-cond="multiple-text-fields">Multiple Text
-                                    Fields</option>
-                                <option value="Checklist" data-cond="checklist">Checklist</option>
-                                <option value="Dynamic-Textbox" data-cond="dynamic-textbox">Dynamic
-                                    Textbox</option>
-                                <option value="Data Grid" data-cond="data-grid">Data Grid</option>
-                                <option value="Scrollable-Description" data-cond="scrollable-description">Scrollable
-                                    Description
-                                </option>
-                                <option value="MultiSelect-Grid" data-cond="multiselect-grid">
-                                    MultiSelect Grid</option>
-                                <option value="Progress-Bar" data-cond="progress-bar">Progress Bar
-                                </option>
-                                <option value="Orderable-List" data-cond="orderable-list">Orderable
-                                    List</option>
-                                <option value="Sliders-with-Result" data-cond="sliders-with-result">
-                                    Sliders with Result</option>
-                                <option value="Range-Slider" data-cond="range-slider">Range Slider
-                                </option>
-                                <option value="Code-Editor" data-cond="code-editor">Code Editor
-                                </option>
-                                <option value="Color-Picker" data-cond="color-picker">Color Picker
-                                </option>
-                                <option value="Cloth-Size" data-cond="cloth-size">Cloth Size
-                                </option>
-                                <option value="Shoe-Size" data-cond="shoe-size">Shoe Size</option>
-                                <option value="Text-Editor" data-cond="text-editor">Text Editor
-                                </option>
+                            @foreach($fieldType as $field)
+                            <optgroup label="{{$field->name}}">
+                                @foreach($field->child as $child)
+                            
+                              <option value="{{$child->id}}">{{$child->name}}</option>
+                              @endforeach
                             </optgroup>
-
-                            <!-- Date & Time Types -->
-                            <optgroup label="Date & Time Types">
-                                <option value="Date" data-cond="date">Date</option>
-                                <option value="Date-Time" data-cond="date-time">Date & Time
-                                </option>
-                                <option value="Last-Date" data-cond="last-date">Last Date</option>
-                                <option value="Previous-Date" data-cond="previous-date">Previous
-                                    Date</option>
-                                <option value="Date-Range" data-cond="date-range">Date Range
-                                </option>
-                                <option value="Time" data-cond="time">Time</option>
-                                <option value="Timer" data-cond="timer">Timer</option>
-                                <option value="Date-Reservation" data-cond="date-reservation">Date
-                                    Reservation</option>
-                            </optgroup>
-
-                            <!-- Media -->
-                            <optgroup label="Media">
-                                <option value="Logo" data-cond="logo">Logo</option>
-                                <option value="Image" data-cond="image">Image</option>
-                                <option value="Banner" data-cond="banner">Banner</option>
-                                <option value="Album" data-cond="album">Album</option>
-                                <option value="Video" data-cond="video">Video</option>
-                                <option value="Files" data-cond="files">Files</option>
-                                <option value="Presentation" data-cond="presentation">Presentation
-                                </option>
-                            </optgroup>
+                            @endforeach
+                            
                         </select>
                     </div>
                     <div class="mt-3">
@@ -595,7 +508,7 @@
 
 
 <script>
-$(document).on('click', '.open-share-modal', function() {
+/*$(document).on('click', '.open-share-modal', function() {
     const formName = $(this).data('form-name');
     const formUrl = $(this).data('form-url');
 
@@ -614,7 +527,7 @@ $(document).on('click', '#copyFormLink', function() {
     }, function() {
         alert('Failed to copy link.');
     });
-});
+});*/
 </script>
 
 <script>
@@ -992,7 +905,7 @@ let formStructure = []; // [{ label: 'Group 1', elements: [{ label: 'Name' }] }]
 
 document.getElementById('previewType').addEventListener('change', function() {
     previewType = this.value;
-    console.log(previewType);
+    //console.log(previewType);
     renderPreviewLayout();
 
 
@@ -1000,13 +913,14 @@ document.getElementById('previewType').addEventListener('change', function() {
 
 document.getElementById('layoutSelect').addEventListener('change', function() {
     layoutClass = this.value;
+    //console.log(layoutClass);
     applyLayout();
 });
 
 function applyLayout() {
     document.querySelectorAll('.form-element').forEach(el => {
         el.className = `form-element ${layoutClass}`;
-
+        console.log(el);
     });
 }
 
@@ -1020,6 +934,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function addNewGroup() {
     const groupLabel = `Group ${formStructure.length + 1}`;
+    //console.log(groupLabel);
     formStructure.push({
         label: groupLabel,
         elements: [],
@@ -1033,7 +948,7 @@ function addNewGroup() {
 
 function renderPreviewLayout() {
     const container = document.getElementById('formCanvas');
-
+     
     container.innerHTML = '';
 
     //regular preview rendering
@@ -1054,7 +969,7 @@ function renderPreviewLayout() {
     }
 
     container.innerHTML = html;
-
+// console.log(container);
     formStructure.forEach((group, index) => {
 
         renderGroup(group, index);
@@ -1082,7 +997,7 @@ function renderPreviewLayout() {
 function renderGroup(group, index) {
     const groupId = `group-${index + 1}`;
     const label = group.label || `Group ${index + 1}`;
-
+           console.log(label);
     const viewType = group.viewType || previewType; // ✅ use group-level type if available
 
 
@@ -2074,10 +1989,10 @@ function bindSidebarDragEvents() {
 function bindSidebarClickEvent() {
     document.querySelectorAll('#elementTabsContent .form-element').forEach(el => {
         const label = el.dataset.label || el.textContent.trim();
-
+            console.log(el);
         // ✅ Only for Household or Industrial
         if (label === 'Household Products' || label === 'Industrial Products') {
-
+           // console.log(label);
             el.addEventListener('click', function() {
                 const functionality = el.dataset.functionality || 'text';
                 const groupview = el.dataset.groupview || '';
@@ -2151,7 +2066,7 @@ function resolveNestedGroup(indexPath) {
 }
 
 
-```
+
 function showFormPreview() {
     let html = '';
 
@@ -2170,7 +2085,7 @@ function showFormPreview() {
             clone.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.add('show', 'active');
             html += `<div>${specialLayoutElement.innerHTML}</div>`;
-        }
+              });
     } 
     else if (groupFormVisible) {
         // Show only group form preview
@@ -2195,7 +2110,8 @@ function showFormPreview() {
     document.getElementById('formPreviewContent').innerHTML = html;
     const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
     modal.show();
-}```
+    }
+}
 
 function updateGroupColumns(groupIndex, cols) {
     formStructure[groupIndex].columns = parseInt(cols);

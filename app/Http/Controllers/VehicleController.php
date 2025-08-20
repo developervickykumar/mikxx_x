@@ -311,6 +311,9 @@ public function productBuilder()
          $rootParentId = 93829;
         $productTypes = Category::where('parent_id', $rootParentId)->get();
         
+        $fieldType = Category::where('parent_id', 134510)
+        ->with('child')
+        ->get();
      return view('productBuilder', [
             'groupedSubCategories' => $groupedSubCategories,
             'formCategory' => $formCategory,
@@ -320,6 +323,7 @@ public function productBuilder()
             'functionalityCategories'=>$functionalityCategories,
              'defaultForms'=> $defaultForms,
              'productTypes'=>$productTypes,
+             'fieldType'=> $fieldType,
         ]);
 }
 

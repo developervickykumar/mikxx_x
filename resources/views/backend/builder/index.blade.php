@@ -337,7 +337,7 @@ let formStructure = []; // [{ label: 'Group 1', elements: [{ label: 'Name' }] }]
 
 document.getElementById('previewType').addEventListener('change', function() {
     previewType = this.value;
-    conslo
+    
     renderPreviewLayout();
 });
 
