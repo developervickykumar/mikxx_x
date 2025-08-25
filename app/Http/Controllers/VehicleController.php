@@ -327,4 +327,19 @@ public function productBuilder()
         ]);
 }
 
+public function vehi()
+{
+    return view('vehi');
+}
+public function embed($id)
+{
+
+    // Example: parent_id = 16256 ke child fields nikal rahe hain
+    $steps  = Category::where('parent_id', $id)->with('child')->get();
+
+    // Yaha assume karte hain ki tumne structure JSON ke form me store kiya hai
+    //$steps = json_decode($categories->first()->structure ?? '[]', true);
+
+    return view('embed', compact('steps'));
+}
 }

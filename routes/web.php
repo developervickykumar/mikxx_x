@@ -728,4 +728,5 @@ Route::get('product/export/{type}',[vehicleController::class, 'export'])->name('
 
 //product builder
 Route::get('productBuilder',[VehicleController::class, 'productBuilder'])->name('productBuilder');
-
+Route::get('vehi',[VehicleController::class, 'vehi']);
+Route::get('/form/{id}/embed', [VehicleController::class, 'embed'])->name('form.embed');

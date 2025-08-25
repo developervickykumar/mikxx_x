@@ -289,9 +289,11 @@
         </div>
 
         <div class="text-end mt-3">
-            <button class="btn btn-outline-primary" onclick="showFormPreview()">
+            <!--<button class="btn btn-outline-primary" onclick="showFormPreview()">
                 <i class="fas fa-eye me-1"></i> Preview Form
-            </button>
+            </button> -->
+            <span id="previewToggle" class="text-primary cursor-pointer text-decoration-underline"
+                    data-bs-toggle="modal" data-bs-target="#previewModal"><i class="fas fa-eye me-1"></i>Preview</span>
         </div>
         <div class="text-end">
             <button type="button" class="btn btn-soft-secondary btn-sm open-share-modal" data-bs-toggle="modal"
@@ -371,17 +373,28 @@
                 </div>
 
                 {{-- Dynamic Tabs for Fields --}}
-                <div id="dynamicForm" class="mt-4" style="display:none">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <ul class="nav flex-column nav-pills" id="formTabs" role="tablist"
-                                aria-orientation="vertical"></ul>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="tab-content border p-3 rounded mt-2" id="formTabsContent"></div>
-                        </div>
+               
+              <div id="dynamicForm" class="mt-4" style="display:none">
+    <div class="row">
+        <div id="tabCol" class="col-md-3">
+            <ul class="nav flex-column nav-pills" id="formTabs" role="tablist"
+                aria-orientation="vertical"></ul>
+        </div>
+        <div id="contentCol" class="col-md-9">
+            <div class="tab-content border p-3 rounded mt-2" id="formTabsContent"></div>
+        </div>
+    </div>
 
-                    </div>
+    <!-- Layout Selector -->
+    <div class="mt-3">
+        <label class="fw-bold">Choose Field Layout</label>
+        <select id="contentLayoutSelector" class="form-select w-auto d-inline-block">
+            <option value="1" selected>1 Column</option>
+            <option value="2">2 Columns</option>
+            <option value="3">3 Columns</option>
+        </select>
+    </div>
+</div>
 
                     <div class="text-end mt-4">
                         <button type="submit" class="btn btn-primary">Submit Vehicle</button>
@@ -393,6 +406,8 @@
                     <div id="embedContainer" class="mt-4" style="display:none;">
                         <h5> Embadded Content</h5>
                         <div class="ratio ratio-16x9">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="copyEmbedCode()">Copy Code</button>
+
                             <pre><code id="embedHtmlCode" class="language-html"></code></pre>
                         </div>
                     </div>
@@ -426,6 +441,9 @@
         </div>
     </div>
 </div>
+
+
+
 
 <!-- Share Modal -->
 <div class="modal fade" id="shareFormModal" tabindex="-1" aria-labelledby="shareFormModalLabel" aria-hidden="true">
@@ -485,7 +503,7 @@
                             <optgroup label="{{$field->name}}">
                                 @foreach($field->child as $child)
                             
-                              <option value="{{$child->id}}">{{$child->name}}</option>
+                              <option value="{{$child->name}}">{{$child->name}}</option>
                               @endforeach
                             </optgroup>
                             @endforeach
@@ -507,8 +525,21 @@
 </div>
 
 
+<div class="modal fade" id="previewModal" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5><span id="previewFormName">Form Preview</span> - <span id="previewGroupName"></span></h5>
+                <select id="viewTypeSelect" class="form-control form-select mb-2 ms-auto w-50">
+                    <option value="multi-step">Multi-Step</option>
+                    <option value="horizontal-tab">Horizontal Tabs</option>
+                    <option value="vertical-tab">Vertical Tabs</option>
+                    <option value="accordion">Accordion</option>
+                </select>
+                <button class="btn-close" data-bs-dismiss="modal"></button> <br>
+            </div>
 <script>
-/*$(document).on('click', '.open-share-modal', function() {
+$(document).on('click', '.open-share-modal', function() {
     const formName = $(this).data('form-name');
     const formUrl = $(this).data('form-url');
 
@@ -527,7 +558,7 @@ $(document).on('click', '#copyFormLink', function() {
     }, function() {
         alert('Failed to copy link.');
     });
-});*/
+});
 </script>
 
 <script>
@@ -553,6 +584,225 @@ function updateLabelText(levelId, labelId) {
     label.textContent = selectOption.value ? selectOption.text : '';
 }
 
+function buildForm(steps) {
+    let tabs = '';
+    let content = '';
+
+    // field wrapper
+    const wrapField = (label, html, stepIndex, fieldIndex) => `
+        <div class="mb-3 position-relative border rounded p-2"
+             data-step-index="${stepIndex}" 
+             data-field-index="${fieldIndex}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="mb-0 fw-bold">${label}</label>
+                <div>
+                    <span class="ms-2 text-danger fw-bold fs-5 remove-field-btn" 
+                          title="Remove Field" style="cursor:pointer;">×</span>
+                    <span class="ms-2 text-primary fw-bold fs-5 field-setting-btn" 
+                          title="Field Setting" style="cursor:pointer;">⋮</span>
+                </div>
+            </div>
+            ${html}
+        </div>
+    `;
+
+    steps.forEach((s, i) => {
+        const active = i === 0 ? 'active' : '';
+        const show = i === 0 ? 'show active' : '';
+
+        // Tabs left side
+        tabs += `
+            <button class="nav-link ${active}" id="tab-${s.id}-tab" data-bs-toggle="pill"
+                data-bs-target="#tab-${s.id}" type="button" role="tab"
+                aria-controls="tab-${s.id}" aria-selected="${i === 0}">
+                ${s.name}
+            </button>
+        `;
+
+        // Content right side
+        let tabContent = '';
+        s.child.forEach((f, idx) => {
+            const name = f.name || `field_${idx}`;
+            const safeName = name.replace(/\s+/g, '_').toLowerCase();
+            const func = (f.functionality || 'text').toLowerCase();
+            const children = Array.isArray(f.child) ? f.child : [];
+
+            if (func === 'text') {
+                tabContent += wrapField(name,
+                    `<input type="text" name="${safeName}" class="form-control">`, i, idx);
+            } else if (func === 'optional') {
+                tabContent += wrapField(name,
+                    `<select name="${safeName}_id" class="form-select">
+                        <option value="">--select--</option>
+                        ${children.map(o => `<option value="${o.id}">${o.name}</option>`).join('')}
+                    </select>`, i, idx
+                );
+            } else if (func === 'checkbox') {
+                const checkboxes = children.map((o, index) => {
+                    const checkboxId = `${safeName}_${index}`;
+                    return `
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="${safeName}[]" 
+                                   value="${o.name}" id="${checkboxId}">
+                            <label class="form-check-label" for="${checkboxId}">${o.name}</label>
+                        </div>
+                    `;
+                }).join('');
+                tabContent += wrapField(name, checkboxes, i, idx);
+            } 
+            else if (func === 'radio') {
+                const radios = (children.length ? children.map(o => o.name) : ['Yes', 'No'])
+                    .map((v, index) => {
+                        const radioId = `${safeName}_${index}`;
+                        return `
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="${safeName}" value="${v}" id="${radioId}">
+                                <label class="form-check-label" for="${radioId}">${v}</label>
+                            </div>
+                        `;
+                    }).join('');
+                tabContent += wrapField(name, radios, i, idx);
+            } else if (func === 'files' || func === 'presentation') {
+                tabContent += wrapField(name,
+                    `<input class="form-control" type="file" name="${safeName}">`, i, idx);
+            }
+            else if(func === 'multiselect')
+                {
+                    tabContent += wrapField(name, `<select name="${safeName}[]" class="form-select" multiple>
+                ${children.map(o=> `<option value="${o.id}">${o.name} </option>`).join('')}
+                </select>`, i, idx
+                    );
+                } 
+                else if(func === 'email')
+                {
+                    tabContent += wrapField(name, `<input type="email" name="${safeName}" class="form-control">`, i, idx);
+                }
+                else if(func === 'contact number')
+                {
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" pattern="[0-9]{10}">`, i, idx);
+                }
+                else if(func === 'description')
+                {
+                    tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="3"></textarea>`, i, idx);
+                }
+                else if(func === 'unit')
+                {
+                    tabContent += wrapField(name, `<input name="${safeName}" type="text" class="form-control" placeholder="Unit">`, i, idx);
+                }
+                else if(func === 'price')
+                {
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" placeholder="Price">`, i, idx);
+                }
+               else if(func === 'rating')
+               {
+                 tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" min="0" max="5" step="0.1">`,i, idx);
+               }
+               else if(func === 'range')
+               {
+                tabContent += wrapField(name, `<input type="range" name="${safeName}" class="form-range" min="0" max="100">`, i, idx );
+               }
+               else if(func === 'review')
+               {
+                tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="4" placeholder="write your review"></textarea>`, i, idx);
+               }
+               else if(func === 'table')
+               {
+                tabContent += wrapField(name,`<table class="table table-bordered"><tr><th>column1</th><th>column 2</th></tr><table>`,i, idx);
+               }
+               else if(func === 'table-checkbox')
+               {
+                tabContent += wrapField(name, `<table class="table table-bordered">
+                                            <tr><th>Select</th><th> Item</th><tr>
+                                            ${children.map(o=> `
+                                            <tr>
+                                            <td><input name="${safeName}[]" type="checkbox" value="${o.name}"></td>
+                                            <td>${o.name}</td>
+                                            </tr>
+
+                `).join('')}
+                </table>`, i, idx);
+               }
+              else if(func === 'column-table')
+              {
+                tabContent += wrapField(name,`<table class="table table-striped"><tr><th>Column A</th><th> Column B</th></tr><table>`, i, idx);
+              }
+              else if(func === 'logo' || func === 'image' || func === 'banner')
+              {
+                tabContent += wrapField(name, `<input class="form-control" type="file" name="${safeName}" accept="image/*">`,i, idx);
+              }
+               else if(func === 'video' || func === 'album')
+               {
+                tabContent += wrapField(name, `<input class="form-control" type="file" accept="video/*"name="${safeName}">`,i , idx);
+               }
+               else if(func === 'date')
+               {
+                 tabContent += wrapField(name, `<input type="date" class="form-control" name="${safaName}">`,i, idx);
+               }
+               else if(func ===  'date-time')
+               {
+                  tabContent += wrapField(name, `<input type="datetime-local" name="${safeName}" class="form-control">`, i, idx);
+               }
+               else if(func === 'time')
+               {
+                 tabContent += wrapField(name, `<input type="time" name="${safeName}" class="form-control">`, i, idx);
+               }
+
+            else {
+                tabContent += wrapField(name,
+                    `<input class="form-control" type="text" name="${safeName}">`, i, idx);
+            }
+        });
+
+        content +=
+            `<div class="tab-pane fade ${show}" id="tab-${s.id}" role="tabpanel" aria-labelledby="tab-${s.id}-tab">${tabContent}</div>`;
+    });
+
+    // inject into layout
+    document.getElementById('formTabs').innerHTML = tabs;
+    document.getElementById('formTabsContent').innerHTML = content;
+    document.getElementById('dynamicForm').style.display = 'block';
+    bindDynamicFormRemoveButtons(steps);
+    bindFieldSettingButtons(steps);
+
+    // 👇 build ke baad layout apply karo (selector ke value ke hisaab se)
+    const selector = document.getElementById("contentLayoutSelector");
+    applyFieldLayout(parseInt(selector.value));
+}
+function applyFieldLayout(columns) {
+    const tabPanes = document.querySelectorAll("#formTabsContent .tab-pane");
+
+    tabPanes.forEach(pane => {
+        // pehle sare fields ko unwrap kar lo
+        let fields = [];
+        pane.querySelectorAll(".mb-3").forEach(f => {
+            fields.push(f);
+        });
+
+        // pane ko clear karo
+        pane.innerHTML = "";
+
+        // ek row banao
+        let row = document.createElement("div");
+        row.className = "row";
+
+        fields.forEach(f => {
+            let col = document.createElement("div");
+
+            if (columns == 1) col.className = "col-md-12";
+            if (columns == 2) col.className = "col-md-6";
+            if (columns == 3) col.className = "col-md-4";
+
+            col.appendChild(f);
+            row.appendChild(col);
+        });
+
+        pane.appendChild(row);
+    });
+}
+
+
+ /*
+   let currentSteps = []; 
 function buildForm(steps) {
     let tabs = '';
     let content = '';
@@ -644,9 +894,9 @@ function buildForm(steps) {
                 {
                     tabContent += wrapField(name, `<input type="email" name="${safeName}" class="form-control">`, i, idx);
                 }
-                else if(func === 'contact-number')
+                else if(func === 'contact number')
                 {
-                    tabContent += wrapField(name, `<input type="tel" name="${safeName}" class="form-control" pattern="[0-9]{10}">`, i, idx);
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" pattern="[0-9]{10}">`, i, idx);
                 }
                 else if(func === 'description')
                 {
@@ -693,11 +943,11 @@ function buildForm(steps) {
               {
                 tabContent += wrapField(name,`<table class="table table-striped"><tr><th>Column A</th><th> Column B</th></tr><table>`, i, idx);
               }
-              else if(func === 'logo' || func === 'image' || func === 'banner' || func === 'album')
+              else if(func === 'logo' || func === 'image' || func === 'banner')
               {
                 tabContent += wrapField(name, `<input class="form-control" type="file" name="${safeName}" accept="image/*">`,i, idx);
               }
-               else if(func === 'video')
+               else if(func === 'video' || func === 'album')
                {
                 tabContent += wrapField(name, `<input class="form-control" type="file" accept="video/*"name="${safeName}">`,i , idx);
                }
@@ -726,28 +976,11 @@ function buildForm(steps) {
     document.getElementById('formTabs').innerHTML = tabs;
     document.getElementById('formTabsContent').innerHTML = content;
     document.getElementById('dynamicForm').style.display = 'block';
-
-    // bind remove events
-    bindDynamicFormRemoveButtons(steps);
+   bindDynamicFormRemoveButtons(steps);
     bindFieldSettingButtons(steps);
-}
 
-function bindDynamicFormRemoveButtons(steps) {
-    document.querySelectorAll('.remove-field-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            const field = e.target.closest('[data-step-index][data-field-index]');
-            const stepIndex = parseInt(field.dataset.stepIndex);
-            const fieldIndex = parseInt(field.dataset.fieldIndex);
-
-            if (!isNaN(stepIndex) && !isNaN(fieldIndex)) {
-                // Remove from data
-                steps[stepIndex].child.splice(fieldIndex, 1);
-                // Rebuild form with updated steps
-                buildForm(steps);
-            }
-        });
-    });
-}
+}*/
+  
 
 
 
@@ -805,6 +1038,7 @@ function bindFieldSettingButtons(steps) {
         if (newType) steps[stepIndex].child[fieldIndex].functionality = newType;
 
         buildForm(steps);
+          bindFieldSettingButtons(steps); 
         bootstrapModal.hide();
     };
 
@@ -849,6 +1083,7 @@ function bindFieldSettingButtons(steps) {
                     if (level < 4) {
                         populate(level, data);
                     } else if (Array.isArray(data)) {
+                        
                         buildForm(data);
                     }
                 });
@@ -856,9 +1091,21 @@ function bindFieldSettingButtons(steps) {
     });
 });
 
-
-
 function showEmbed() {
+    const formId = document.getElementById('level1')?.value; 
+    if (!formId) {
+        alert("Please select a product/form first.");
+        return;
+    }
+
+    const embedUrl = "{{ route('form.embed', ':id') }}".replace(':id', formId);
+
+    const embedCode = `<iframe src="${embedUrl}" width="640" height="900" frameborder="0" marginheight="0" marginwidth="0"></iframe>`;
+
+    document.getElementById('embedContainer').style.display = 'block';
+    document.getElementById('embedHtmlCode').textContent = embedCode;
+}
+/*function showEmbed() {
     const level3 = document.getElementById('level3').value;
 
     if (!level3) {
@@ -889,7 +1136,7 @@ function showEmbed() {
             console.error('Error fetching embed data:', err);
             alert('Failed to load embed content.');
         });
-}
+}*/
 </script>
 
 <script>
@@ -905,7 +1152,7 @@ let formStructure = []; // [{ label: 'Group 1', elements: [{ label: 'Name' }] }]
 
 document.getElementById('previewType').addEventListener('change', function() {
     previewType = this.value;
-    //console.log(previewType);
+
     renderPreviewLayout();
 
 
@@ -913,14 +1160,14 @@ document.getElementById('previewType').addEventListener('change', function() {
 
 document.getElementById('layoutSelect').addEventListener('change', function() {
     layoutClass = this.value;
-    //console.log(layoutClass);
+   
     applyLayout();
 });
 
 function applyLayout() {
     document.querySelectorAll('.form-element').forEach(el => {
         el.className = `form-element ${layoutClass}`;
-        console.log(el);
+       
     });
 }
 
@@ -934,7 +1181,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function addNewGroup() {
     const groupLabel = `Group ${formStructure.length + 1}`;
-    //console.log(groupLabel);
+    
     formStructure.push({
         label: groupLabel,
         elements: [],
@@ -997,7 +1244,7 @@ function renderPreviewLayout() {
 function renderGroup(group, index) {
     const groupId = `group-${index + 1}`;
     const label = group.label || `Group ${index + 1}`;
-           console.log(label);
+          // console.log(label);
     const viewType = group.viewType || previewType; // ✅ use group-level type if available
 
 
@@ -1411,6 +1658,9 @@ function renderInputByFunctionality(el) {
             return `<input type="text" class="form-control" placeholder="${label}">`;
     }
 }
+
+
+
 
 const checkboxTableConfig = {};
 
@@ -1987,35 +2237,49 @@ function bindSidebarDragEvents() {
 
 
 function bindSidebarClickEvent() {
-    document.querySelectorAll('#elementTabsContent .form-element').forEach(el => {
+    const elements = document.querySelectorAll('#elementTabsContent .form-element');
+    const formCanvas = document.querySelector('#formCanvas');
+    const specialLayout = document.querySelector('#specialLayout');
+
+    if (!formCanvas || !specialLayout) {
+        console.warn('⚠️ Missing #formCanvas or #specialLayout in DOM');
+        return;
+    }
+
+    elements.forEach(el => {
         const label = el.dataset.label || el.textContent.trim();
-            console.log(el);
-        // ✅ Only for Household or Industrial
-        if (label === 'Household Products' || label === 'Industrial Products') {
-           // console.log(label);
-            el.addEventListener('click', function() {
-                const functionality = el.dataset.functionality || 'text';
-                const groupview = el.dataset.groupview || '';
-                const isForm = el.dataset.isform || '0';
-                const optionAllowed = el.dataset.optionAllowed || 'off';
 
-                // 🔄 Hide formCanvas
-                document.querySelector('#formCanvas').style.display = 'none';
+        // ✅ Only target Household or Industrial
+        if (['Household Products', 'Industrial Products'].includes(label)) {
 
-                // 📌 Show specialLayout
-                const specialLayout = document.querySelector('#specialLayout');
-                specialLayout.style.display = 'block';
+            // 🔄 Avoid duplicate listeners
+            el.removeEventListener('click', handleClick);
+            el.addEventListener('click', handleClick);
+        }
 
-                // (Optional) Change heading based on clicked label
-                specialLayout.querySelector('.alert').innerText =
-                    `Special Layout for ${label}`;
+        function handleClick() {
+            const functionality = el.dataset.functionality || 'text';
+            const groupview = el.dataset.groupview || '';
+            const isForm = el.dataset.isform || '0';
+            const optionAllowed = el.dataset.optionAllowed || 'off';
 
-                // (Optional) Prefill product name input
-                const productNameInput = specialLayout.querySelector('input[type="text"]');
-                if (productNameInput) {
-                    productNameInput.value = label;
-                }
-            });
+            // 🔄 Hide formCanvas
+            formCanvas.style.display = 'none';
+
+            // 📌 Show specialLayout
+            specialLayout.style.display = 'block';
+
+            // 🏷️ Change heading if available
+            const alertBox = specialLayout.querySelector('.alert');
+            if (alertBox) {
+                alertBox.innerText = `Special Layout for ${label}`;
+            }
+
+            // 📝 Prefill product name if input exists
+            const productNameInput = specialLayout.querySelector('input[type="text"]');
+            if (productNameInput) {
+                productNameInput.value = label;
+            }
         }
     });
 }
@@ -2066,52 +2330,30 @@ function resolveNestedGroup(indexPath) {
 }
 
 
+function showFormPreview(steps) {
+    const previewContainer = document.getElementById("formPreviewContent");
+    previewContainer.innerHTML = "";
 
-function showFormPreview() {
-    let html = '';
+    // Wrap inside container
+    const wrapper = document.createElement("div");
+    wrapper.id = "previewDynamicForm";
+    previewContainer.appendChild(wrapper);
 
-    // Check which section is visible/active
-    const productTypeVisible = document.getElementById('specialLayout')?.offsetParent !== null;
-    const groupFormVisible = document.getElementById('groupFormContainer')?.offsetParent !== null;
+    // Steps se form build karo
+    buildFormPreview(steps, wrapper);
 
-    if (productTypeVisible) {
-        // Show product type layout only
-        const specialLayoutElement = document.getElementById('specialLayout');
-        if (specialLayoutElement) {
-              const clone = specialLayoutElement.cloneNode(true);
-            clone.style.display = 'block'; // Make it visible in preview
+    // Reset buttons
+    document.getElementById("prevStepBtn").style.display = "none";
+    document.getElementById("nextStepBtn").style.display = steps.length > 1 ? "inline-block" : "none";
+    document.getElementById("saveFormBtn").style.display = steps.length === 1 ? "inline-block" : "none";
 
-            // If you want ALL tabs to be visible in preview
-            clone.querySelectorAll('.tab-pane').forEach(pane => {
-                pane.classList.add('show', 'active');
-            html += `<div>${specialLayoutElement.innerHTML}</div>`;
-              });
-    } 
-    else if (groupFormVisible) {
-        // Show only group form preview
-        formStructure.forEach((group) => {
-            html += `<h4 class="mt-3">${group.label}</h4>`;
-            html += `<div class="border rounded p-3 mb-3 bg-light"><div class="row">`;
-
-            group.elements.forEach(el => {
-                html += `
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">${el.label}</label>
-                        ${renderInputByFunctionality(el)}
-                    </div>
-                `;
-            });
-
-            html += `</div></div>`;
-        });
-    }
-
-    // Inject HTML into modal and show
-    document.getElementById('formPreviewContent').innerHTML = html;
-    const modal = new bootstrap.Modal(document.getElementById('formPreviewModal'));
-    modal.show();
-    }
+    // First step active
+    currentStep = 0;
+    renderPreviewStep(steps, currentStep);
 }
+
+
+
 
 function updateGroupColumns(groupIndex, cols) {
     formStructure[groupIndex].columns = parseInt(cols);
