@@ -426,25 +426,6 @@
     </div>
 </div>
 
-
-
-<div class="modal fade" id="formPreviewModal" tabindex="-1" aria-labelledby="formPreviewLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="formPreviewLabel">Form Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="formPreviewContent">
-                <!-- Preview will be injected here -->
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
 <!-- Share Modal -->
 <div class="modal fade" id="shareFormModal" tabindex="-1" aria-labelledby="shareFormModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -524,20 +505,41 @@
     </div>
 </div>
 
-
 <div class="modal fade" id="previewModal" aria-hidden="true" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5><span id="previewFormName">Form Preview</span> - <span id="previewGroupName"></span></h5>
-                <select id="viewTypeSelect" class="form-control form-select mb-2 ms-auto w-50">
-                    <option value="multi-step">Multi-Step</option>
-                    <option value="horizontal-tab">Horizontal Tabs</option>
-                    <option value="vertical-tab">Vertical Tabs</option>
-                    <option value="accordion">Accordion</option>
-                </select>
-                <button class="btn-close" data-bs-dismiss="modal"></button> <br>
-            </div>
+  <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+    <div class="modal-content">
+      
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <span id="previewFormName">Form Preview</span> - 
+          <span id="previewGroupName"></span>
+        </h5>
+        <select id="viewTypeSelect" class="form-control form-select ms-3 w-50">
+          <option value="multi-step">Multi-Step</option>
+          <option value="horizontal-tab">Horizontal Tabs</option>
+          <option value="vertical-tab">Vertical Tabs</option>
+          <option value="accordion">Accordion</option>
+        </select>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <div id="formPreviewContent" class="p-3"></div>
+      </div>
+      
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button id="prevStepBtn" class="btn btn-secondary">Prev</button>
+        <button id="nextStepBtn" class="btn btn-primary">Next</button>
+        <button id="saveFormBtn" class="btn btn-success">Save</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
 $(document).on('click', '.open-share-modal', function() {
     const formName = $(this).data('form-name');
@@ -562,6 +564,7 @@ $(document).on('click', '#copyFormLink', function() {
 </script>
 
 <script>
+    
 function resetFrom(level) {
     ['level2', 'level3'].forEach((id, i) => {
         if (i + 2 >= level) document.getElementById(id).innerHTML = '';
@@ -582,9 +585,23 @@ function updateLabelText(levelId, labelId) {
     const label = document.getElementById(labelId);
     const selectOption = select.options[select.selectedIndex];
     label.textContent = selectOption.value ? selectOption.text : '';
+    
+        if (levelId === "level3") {
+        const previewTitle = document.getElementById("previewFormName");
+        const previewGroup = document.getElementById("previewGroupName");
+
+        // Example: Form Preview - GroupName - SelectedName
+        previewTitle.textContent = "Form Preview"; // स्थायी text
+        previewGroup.textContent = selectOption.value ? selectOption.text : '';
+    }
 }
 
+let globalSteps = [];
+let viewType = "vertical-tab"; 
+let currentStep = 0;
+
 function buildForm(steps) {
+    globalSteps = steps; 
     let tabs = '';
     let content = '';
 
@@ -757,87 +774,192 @@ function buildForm(steps) {
             `<div class="tab-pane fade ${show}" id="tab-${s.id}" role="tabpanel" aria-labelledby="tab-${s.id}-tab">${tabContent}</div>`;
     });
 
-    // inject into layout
     document.getElementById('formTabs').innerHTML = tabs;
-    document.getElementById('formTabsContent').innerHTML = content;
-    document.getElementById('dynamicForm').style.display = 'block';
-    bindDynamicFormRemoveButtons(steps);
-    bindFieldSettingButtons(steps);
 
-    // 👇 build ke baad layout apply karo (selector ke value ke hisaab se)
-    const selector = document.getElementById("contentLayoutSelector");
-    applyFieldLayout(parseInt(selector.value));
+// ✅ form content ke saath submit button bhi
+document.getElementById('formTabsContent').innerHTML = content + `
+    <div class="text-end mt-3">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+`;
+
+document.getElementById('dynamicForm').style.display = 'block';
+  
+
+
+  bindDynamicFormRemoveButtons(globalSteps);
+    bindFieldSettingButtons(globalSteps);
+
+    // ✅ Build ke baad Preview call
+    showFormPreview(globalSteps);
+
+// 👇 build ke baad layout apply karo (selector ke value ke hisaab se)
+const selector = document.getElementById("contentLayoutSelector");
+selector.onchange = function() {
+    applyFieldLayout(parseInt(this.value), "builder");
+    applyFieldLayout(parseInt(this.value), "preview"); // preview ke liye bhi
+};
+
+// default apply
+applyFieldLayout(parseInt(selector.value), "builder");
+applyFieldLayout(parseInt(selector.value), "preview");
 }
-function applyFieldLayout(columns) {
-    const tabPanes = document.querySelectorAll("#formTabsContent .tab-pane");
 
-    tabPanes.forEach(pane => {
-        // pehle sare fields ko unwrap kar lo
-        let fields = [];
-        pane.querySelectorAll(".mb-3").forEach(f => {
-            fields.push(f);
+
+
+
+function bindDynamicFormRemoveButtons(steps) {
+    document.querySelectorAll('.remove-field-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            const fieldDiv = e.target.closest('[data-step-index][data-field-index]');
+            if (!fieldDiv) return;
+
+            const stepIndex = parseInt(fieldDiv.dataset.stepIndex);
+            const fieldIndex = parseInt(fieldDiv.dataset.fieldIndex);
+
+            if (!isNaN(stepIndex) && !isNaN(fieldIndex)) {
+                // array se bhi delete karo
+                steps[stepIndex].child.splice(fieldIndex, 1);
+                // firse form rebuild karo
+                buildForm(steps);
+            }
         });
-
-        // pane ko clear karo
-        pane.innerHTML = "";
-
-        // ek row banao
-        let row = document.createElement("div");
-        row.className = "row";
-
-        fields.forEach(f => {
-            let col = document.createElement("div");
-
-            if (columns == 1) col.className = "col-md-12";
-            if (columns == 2) col.className = "col-md-6";
-            if (columns == 3) col.className = "col-md-4";
-
-            col.appendChild(f);
-            row.appendChild(col);
-        });
-
-        pane.appendChild(row);
     });
 }
 
+function bindFieldSettingButtons(steps) {
+    const modalEl = document.getElementById('fieldSettingsModal');
+    const bootstrapModal = new bootstrap.Modal(modalEl);
+    const fieldPreview = document.getElementById('fieldPreview');
+    const fieldNameInput = document.getElementById('fieldNameInput');
+    const fieldTypeSelect = document.getElementById('fieldTypeSelect');
+    const saveBtn = document.getElementById('saveFieldSettingsBtn');
 
- /*
-   let currentSteps = []; 
-function buildForm(steps) {
+    // ✅ Event Delegation (only one time bind)
+    document.getElementById('formTabsContent').addEventListener('click', function (e) {
+        if (e.target.classList.contains('field-setting-btn')) {
+            const fieldDiv = e.target.closest('[data-step-index][data-field-index]');
+            if (!fieldDiv) return;
+
+            const stepIndex = parseInt(fieldDiv.dataset.stepIndex);
+            const fieldIndex = parseInt(fieldDiv.dataset.fieldIndex);
+            if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
+
+            const fieldData = steps[stepIndex].child[fieldIndex];
+
+            fieldNameInput.value = fieldData.name || '';
+            fieldTypeSelect.value = fieldData.functionality || 'text';
+
+            modalEl.dataset.stepIndex = stepIndex;
+            modalEl.dataset.fieldIndex = fieldIndex;
+
+            updateFieldPreview(fieldData.functionality || 'text', fieldData.name);
+
+            bootstrapModal.show();
+        }
+    });
+
+    // type change preview
+    fieldTypeSelect.addEventListener('change', function () {
+        const newType = this.value;
+        const name = fieldNameInput.value || 'Field';
+        updateFieldPreview(newType, name);
+    });
+
+    // save button
+    saveBtn.addEventListener('click', function () {
+        const stepIndex = parseInt(modalEl.dataset.stepIndex);
+        const fieldIndex = parseInt(modalEl.dataset.fieldIndex);
+        if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
+
+        const newName = fieldNameInput.value.trim();
+        const newType = fieldTypeSelect.value;
+
+        if (newName) steps[stepIndex].child[fieldIndex].name = newName;
+        if (newType) steps[stepIndex].child[fieldIndex].functionality = newType;
+
+        buildForm(steps);
+        bootstrapModal.hide();
+    });
+
+    function updateFieldPreview(type, label) {
+        label = label || 'Field';
+        type = type.toLowerCase();
+        let html = '';
+
+        if (type === 'text') {
+            html = `<input type="text" class="form-control" placeholder="${label}">`;
+        } else if (type === 'optional') {
+            html = `<select class="form-select"><option>-- Select --</option></select>`;
+        } else if (type === 'checkbox') {
+            html = `<div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label">${label}</label></div>`;
+        } else if (type === 'radio') {
+            html = `<div class="form-check"><input class="form-check-input" type="radio"><label class="form-check-label">${label}</label></div>`;
+        } else if (type === 'files') {
+            html = `<input type="file" class="form-control">`;
+        } else {
+            html = `<input type="text" class="form-control" placeholder="${label}">`;
+        }
+
+        fieldPreview.innerHTML = html;
+    }
+}
+ 
+
+// ========== Show Form Preview ==========
+
+function showFormPreview(steps) {
+    const previewContainer = document.getElementById("formPreviewContent");
+    previewContainer.innerHTML = "";
+
+    // Wrapper
+    const wrapper = document.createElement("div");
+    wrapper.id = "previewDynamicForm";
+    previewContainer.appendChild(wrapper);
+
+    
+
+    // Apne steps data ke sath call karo
+    buildFormPreview(steps, wrapper,viewType);
+
+
+    // Reset buttons (only for tab-based views)
+    if (viewType === "vertical-tab" || viewType === "horizontal-tab" || viewType === "multi-step") {
+        currentStep = 0;
+        renderPreviewStep(steps, currentStep);
+        document.getElementById("prevStepBtn").style.display = "inline-block";
+        document.getElementById("nextStepBtn").style.display = "inline-block";
+        document.getElementById("saveFormBtn").style.display = "none";
+    } else {
+        document.getElementById("prevStepBtn").style.display = "none";
+        document.getElementById("nextStepBtn").style.display = "none";
+        document.getElementById("saveFormBtn").style.display = "inline-block";
+    }
+    const cols = parseInt(document.getElementById("contentLayoutSelector").value || 1);
+    applyFieldLayout(cols, "preview");
+}
+
+
+
+function buildFormPreview(steps, wrapper){
+  
     let tabs = '';
     let content = '';
-
-    // Common wrapper with buttons for all fields
-    const wrapField = (label, html, stepIndex, fieldIndex) => `
-        <div class="mb-3 position-relative border rounded p-2"
-             data-step-index="${stepIndex}" 
-             data-field-index="${fieldIndex}">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <label class="mb-0 fw-bold">${label}</label>
-                <div>
-                    <span class="ms-2 text-danger fw-bold fs-5 remove-field-btn" 
-                          title="Remove Field" style="cursor:pointer;">×</span>
-                    <span class="ms-2 text-primary fw-bold fs-5 field-setting-btn" 
-                          title="Field Setting" style="cursor:pointer;">⋮</span>
-                </div>
-            </div>
-            ${html}
-        </div>
-    `;
-
+    
     steps.forEach((s, i) => {
         const active = i === 0 ? 'active' : '';
         const show = i === 0 ? 'show active' : '';
 
-        // Tabs
+        // ---------- Tabs UI ----------
         tabs += `
-            <button class="nav-link ${active}" id="tab-${s.id}-tab" data-bs-toggle="pill"
-                data-bs-target="#tab-${s.id}" type="button" role="tab"
-                aria-controls="tab-${s.id}" aria-selected="${i === 0}">
+            <button class="nav-link ${active}" id="preview-tab-${s.id}-tab" data-bs-toggle="pill"
+                data-bs-target="#preview-tab-${s.id}" type="button" role="tab"
+                aria-controls="preview-tab-${s.id}" aria-selected="${i === 0}">
                 ${s.name}
             </button>
         `;
 
+        // ---------- Fields ----------
         let tabContent = '';
         s.child.forEach((f, idx) => {
             const name = f.name || `field_${idx}`;
@@ -846,16 +968,15 @@ function buildForm(steps) {
             const children = Array.isArray(f.child) ? f.child : [];
 
             if (func === 'text') {
-                tabContent += wrapField(name,
-                    `<input type="text" name="${safeName}" class="form-control">`, i, idx);
+                tabContent += wrapField(name, `<input type="text" name="${safeName}" class="form-control">`, i, idx, "preview");
             } else if (func === 'optional') {
-                tabContent += wrapField(name,
-                    `<select name="${safeName}_id" class="form-select">
+                tabContent += wrapField(name, `
+                    <select name="${safeName}_id" class="form-select">
                         <option value="">--select--</option>
                         ${children.map(o => `<option value="${o.id}">${o.name}</option>`).join('')}
-                    </select>`, i, idx
-                );
-            } else if (func === 'checkbox') {
+                    </select>`, i, idx, "preview");
+            }
+            else if (func === 'checkbox') {
                 const checkboxes = children.map((o, index) => {
                     const checkboxId = `${safeName}_${index}`;
                     return `
@@ -867,7 +988,8 @@ function buildForm(steps) {
                     `;
                 }).join('');
                 tabContent += wrapField(name, checkboxes, i, idx);
-            } else if (func === 'radio') {
+            } 
+            else if (func === 'radio') {
                 const radios = (children.length ? children.map(o => o.name) : ['Yes', 'No'])
                     .map((v, index) => {
                         const radioId = `${safeName}_${index}`;
@@ -896,7 +1018,7 @@ function buildForm(steps) {
                 }
                 else if(func === 'contact number')
                 {
-                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" pattern="[0-9]{10}">`, i, idx);
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" >`, i, idx);
                 }
                 else if(func === 'description')
                 {
@@ -967,105 +1089,511 @@ function buildForm(steps) {
                 tabContent += wrapField(name,
                     `<input class="form-control" type="text" name="${safeName}">`, i, idx);
             }
+            
         });
 
-        content +=
-            `<div class="tab-pane fade ${show}" id="tab-${s.id}" role="tabpanel" aria-labelledby="tab-${s.id}-tab">${tabContent}</div>`;
+        // ---------- Content store ----------
+        content += `
+            <div class="tab-pane fade ${show}" id="preview-tab-${s.id}" role="tabpanel">
+                ${tabContent}
+            </div>
+        `;
     });
 
-    document.getElementById('formTabs').innerHTML = tabs;
-    document.getElementById('formTabsContent').innerHTML = content;
-    document.getElementById('dynamicForm').style.display = 'block';
-   bindDynamicFormRemoveButtons(steps);
-    bindFieldSettingButtons(steps);
-
-}*/
-  
-
-
-
-function bindFieldSettingButtons(steps) {
-    const modalEl = document.getElementById('fieldSettingsModal');
-    const bootstrapModal = new bootstrap.Modal(modalEl);
-    const fieldPreview = document.getElementById('fieldPreview');
-
-    document.querySelectorAll('.field-setting-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            const fieldDiv = e.target.closest('[data-step-index][data-field-index]');
-            if (!fieldDiv) return;
-
-            const stepIndex = parseInt(fieldDiv.dataset.stepIndex);
-            const fieldIndex = parseInt(fieldDiv.dataset.fieldIndex);
-            if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
-
-            const fieldData = steps[stepIndex].child[fieldIndex];
-
-            document.getElementById('fieldNameInput').value = fieldData.name || '';
-            document.getElementById('fieldTypeInput').value = fieldData.functionality || 'text';
-            document.getElementById('fieldTypeSelect').value = fieldData.functionality || 'text';
-
-            modalEl.dataset.stepIndex = stepIndex;
-            modalEl.dataset.fieldIndex = fieldIndex;
-
-            // Show live preview
-            updateFieldPreview(fieldData.functionality || 'text', fieldData.name);
-
-            bootstrapModal.show();
-        });
-    });
-
-    // Live preview when dropdown changes
-    document.getElementById('fieldTypeSelect').addEventListener('change', function() {
-        const stepIndex = parseInt(modalEl.dataset.stepIndex);
-        const fieldIndex = parseInt(modalEl.dataset.fieldIndex);
-        if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
-
-        const newType = this.value;
-        const name = document.getElementById('fieldNameInput').value || 'Field';
-        updateFieldPreview(newType, name);
-    });
-
-    // Save button
-    document.getElementById('saveFieldSettingsBtn').onclick = function() {
-        const stepIndex = parseInt(modalEl.dataset.stepIndex);
-        const fieldIndex = parseInt(modalEl.dataset.fieldIndex);
-        if (isNaN(stepIndex) || isNaN(fieldIndex)) return;
-
-        const newName = document.getElementById('fieldNameInput').value.trim();
-        const newType = document.getElementById('fieldTypeSelect').value;
-
-        if (newName) steps[stepIndex].child[fieldIndex].name = newName;
-        if (newType) steps[stepIndex].child[fieldIndex].functionality = newType;
-
-        buildForm(steps);
-          bindFieldSettingButtons(steps); 
-        bootstrapModal.hide();
-    };
-
-    // Helper for preview rendering
-    function updateFieldPreview(type, label) {
-        label = label || 'Field';
-        type = type.toLowerCase();
-        let html = '';
-
-        if (type === 'text') {
-            html = `<input type="text" class="form-control" placeholder="${label}">`;
-        } else if (type === 'optional') {
-            html = `<select class="form-select"><option>-- Select --</option></select>`;
-        } else if (type === 'checkbox') {
-            html =
-                `<div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label">${label}</label></div>`;
-        } else if (type === 'radio') {
-            html =
-                `<div class="form-check"><input class="form-check-input" type="radio" name="preview"><label class="form-check-label">${label}</label></div>`;
-        } else if (type === 'files') {
-            html = `<input type="file" class="form-control">`;
-        } else {
-            html = `<input type="text" class="form-control" placeholder="${label}">`;
-        }
-
-        fieldPreview.innerHTML = html;
+    // ---------- Layouts ----------
+    let html = '';
+ 
+    if (viewType === "vertical-tab") {
+        html = `
+            <div class="d-flex">
+                <ul class="nav nav-pills flex-column me-3" id="previewTabs" role="tablist">
+                    ${tabs}
+                </ul>
+                <div class="tab-content flex-grow-1" id="previewTabsContent">
+                    ${content}
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                </div>
+            </div>
+        `;
     }
+
+    else if (viewType === "horizontal-tab") {
+        html = `
+            <div>
+                <ul class="nav nav-pills mb-3" id="previewTabs" role="tablist">
+                    ${tabs}
+                </ul>
+                <div class="tab-content" id="previewTabsContent">
+                    ${content}
+                    <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+   else if (viewType === "multi-step") {
+    html = `
+        <div id="multiStepForm">
+            ${steps.map((s, i) => {
+                let tabContent = '';
+                s.child.forEach((f, idx) => {
+                    const name = f.name || `field_${idx}`;
+                    const safeName = name.replace(/\s+/g, '_').toLowerCase();
+                    const func = (f.functionality || 'text').toLowerCase();
+                    const children = Array.isArray(f.child) ? f.child : [];
+
+                    // ---- same switch logic used in tabs ----
+                    if (func === 'text') {
+                        tabContent += wrapField(name, `<input type="text" name="${safeName}" class="form-control">`, i, idx, "preview");
+                    } else if (func === 'optional') {
+                        tabContent += wrapField(name, `
+                            <select name="${safeName}_id" class="form-select">
+                                <option value="">--select--</option>
+                                ${children.map(o => `<option value="${o.id}">${o.name}</option>`).join('')}
+                            </select>`, i, idx, "preview");
+                    }
+                   else if (func === 'checkbox') {
+                const checkboxes = children.map((o, index) => {
+                    const checkboxId = `${safeName}_${index}`;
+                    return `
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="${safeName}[]" 
+                                   value="${o.name}" id="${checkboxId}">
+                            <label class="form-check-label" for="${checkboxId}">${o.name}</label>
+                        </div>
+                    `;
+                }).join('');
+                tabContent += wrapField(name, checkboxes, i, idx);
+            } 
+            else if (func === 'radio') {
+                const radios = (children.length ? children.map(o => o.name) : ['Yes', 'No'])
+                    .map((v, index) => {
+                        const radioId = `${safeName}_${index}`;
+                        return `
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="${safeName}" value="${v}" id="${radioId}">
+                                <label class="form-check-label" for="${radioId}">${v}</label>
+                            </div>
+                        `;
+                    }).join('');
+                tabContent += wrapField(name, radios, i, idx);
+            } else if (func === 'files' || func === 'presentation') {
+                tabContent += wrapField(name,
+                    `<input class="form-control" type="file" name="${safeName}">`, i, idx);
+            }
+            else if(func === 'multiselect')
+                {
+                    tabContent += wrapField(name, `<select name="${safeName}[]" class="form-select" multiple>
+                ${children.map(o=> `<option value="${o.id}">${o.name} </option>`).join('')}
+                </select>`, i, idx
+                    );
+                } 
+                else if(func === 'email')
+                {
+                    tabContent += wrapField(name, `<input type="email" name="${safeName}" class="form-control">`, i, idx);
+                }
+                else if(func === 'contact number')
+                {
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" >`, i, idx);
+                }
+                else if(func === 'description')
+                {
+                    tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="3"></textarea>`, i, idx);
+                }
+                else if(func === 'unit')
+                {
+                    tabContent += wrapField(name, `<input name="${safeName}" type="text" class="form-control" placeholder="Unit">`, i, idx);
+                }
+                else if(func === 'price')
+                {
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" placeholder="Price">`, i, idx);
+                }
+               else if(func === 'rating')
+               {
+                 tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" min="0" max="5" step="0.1">`,i, idx);
+               }
+               else if(func === 'range')
+               {
+                tabContent += wrapField(name, `<input type="range" name="${safeName}" class="form-range" min="0" max="100">`, i, idx );
+               }
+               else if(func === 'review')
+               {
+                tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="4" placeholder="write your review"></textarea>`, i, idx);
+               }
+               else if(func === 'table')
+               {
+                tabContent += wrapField(name,`<table class="table table-bordered"><tr><th>column1</th><th>column 2</th></tr><table>`,i, idx);
+               }
+               else if(func === 'table-checkbox')
+               {
+                tabContent += wrapField(name, `<table class="table table-bordered">
+                                            <tr><th>Select</th><th> Item</th><tr>
+                                            ${children.map(o=> `
+                                            <tr>
+                                            <td><input name="${safeName}[]" type="checkbox" value="${o.name}"></td>
+                                            <td>${o.name}</td>
+                                            </tr>
+
+                `).join('')}
+                </table>`, i, idx);
+               }
+              else if(func === 'column-table')
+              {
+                tabContent += wrapField(name,`<table class="table table-striped"><tr><th>Column A</th><th> Column B</th></tr><table>`, i, idx);
+              }
+              else if(func === 'logo' || func === 'image' || func === 'banner')
+              {
+                tabContent += wrapField(name, `<input class="form-control" type="file" name="${safeName}" accept="image/*">`,i, idx);
+              }
+               else if(func === 'video' || func === 'album')
+               {
+                tabContent += wrapField(name, `<input class="form-control" type="file" accept="video/*"name="${safeName}">`,i , idx);
+               }
+               else if(func === 'date')
+               {
+                 tabContent += wrapField(name, `<input type="date" class="form-control" name="${safaName}">`,i, idx);
+               }
+               else if(func ===  'date-time')
+               {
+                  tabContent += wrapField(name, `<input type="datetime-local" name="${safeName}" class="form-control">`, i, idx);
+               }
+               else if(func === 'time')
+               {
+                 tabContent += wrapField(name, `<input type="time" name="${safeName}" class="form-control">`, i, idx);
+               }
+          
+                    else {
+                        tabContent += wrapField(name, `<input class="form-control" type="text" name="${safeName}">`, i, idx);
+                    }
+                });
+
+                return `
+                    <div class="step ${i === 0 ? '' : 'd-none'}" data-step="${i}">
+                        <h5>${s.name}</h5>
+                        ${tabContent}
+                        <div class="text-end mt-3">
+                            ${i > 0 ? '<button type="button" class="btn btn-secondary prevStep">Prev</button>' : ''}
+                            ${i < steps.length - 1 ? '<button type="button" class="btn btn-primary nextStep">Next</button>' : '<button type="submit" class="btn btn-success">Submit</button>'}
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+
+    // step navigation binding
+    setTimeout(() => {
+        document.querySelectorAll("#multiStepForm .nextStep").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const step = this.closest(".step");
+                step.classList.add("d-none");
+                step.nextElementSibling.classList.remove("d-none");
+            });
+        });
+        document.querySelectorAll("#multiStepForm .prevStep").forEach(btn => {
+            btn.addEventListener("click", function () {
+                const step = this.closest(".step");
+                step.classList.add("d-none");
+                step.previousElementSibling.classList.remove("d-none");
+            });
+        });
+    }, 100);
+}
+
+    else if (viewType === "accordion") {
+    html = `
+        <div class="accordion" id="previewAccordion">
+            ${steps.map((s, i) => {
+                let tabContent = '';
+                s.child.forEach((f, idx) => {
+                    const name = f.name || `field_${idx}`;
+                    const safeName = name.replace(/\s+/g, '_').toLowerCase();
+                    const func = (f.functionality || 'text').toLowerCase();
+                    const children = Array.isArray(f.child) ? f.child : [];
+
+                    // ---- same logic as tabs ----
+                    if (func === 'text') {
+                        tabContent += wrapField(name, `<input type="text" name="${safeName}" class="form-control">`, i, idx, "preview");
+                    } else if (func === 'optional') {
+                        tabContent += wrapField(name, `
+                            <select name="${safeName}_id" class="form-select">
+                                <option value="">--select--</option>
+                                ${children.map(o => `<option value="${o.id}">${o.name}</option>`).join('')}
+                            </select>`, i, idx, "preview");
+                    }
+                    else if (func === 'checkbox') {
+                const checkboxes = children.map((o, index) => {
+                    const checkboxId = `${safeName}_${index}`;
+                    return `
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="${safeName}[]" 
+                                   value="${o.name}" id="${checkboxId}">
+                            <label class="form-check-label" for="${checkboxId}">${o.name}</label>
+                        </div>
+                    `;
+                }).join('');
+                tabContent += wrapField(name, checkboxes, i, idx);
+            } 
+            else if (func === 'radio') {
+                const radios = (children.length ? children.map(o => o.name) : ['Yes', 'No'])
+                    .map((v, index) => {
+                        const radioId = `${safeName}_${index}`;
+                        return `
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="${safeName}" value="${v}" id="${radioId}">
+                                <label class="form-check-label" for="${radioId}">${v}</label>
+                            </div>
+                        `;
+                    }).join('');
+                tabContent += wrapField(name, radios, i, idx);
+            } else if (func === 'files' || func === 'presentation') {
+                tabContent += wrapField(name,
+                    `<input class="form-control" type="file" name="${safeName}">`, i, idx);
+            }
+            else if(func === 'multiselect')
+                {
+                    tabContent += wrapField(name, `<select name="${safeName}[]" class="form-select" multiple>
+                ${children.map(o=> `<option value="${o.id}">${o.name} </option>`).join('')}
+                </select>`, i, idx
+                    );
+                } 
+                else if(func === 'email')
+                {
+                    tabContent += wrapField(name, `<input type="email" name="${safeName}" class="form-control">`, i, idx);
+                }
+                else if(func === 'contact number')
+                {
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" >`, i, idx);
+                }
+                else if(func === 'description')
+                {
+                    tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="3"></textarea>`, i, idx);
+                }
+                else if(func === 'unit')
+                {
+                    tabContent += wrapField(name, `<input name="${safeName}" type="text" class="form-control" placeholder="Unit">`, i, idx);
+                }
+                else if(func === 'price')
+                {
+                    tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" placeholder="Price">`, i, idx);
+                }
+               else if(func === 'rating')
+               {
+                 tabContent += wrapField(name, `<input type="number" name="${safeName}" class="form-control" min="0" max="5" step="0.1">`,i, idx);
+               }
+               else if(func === 'range')
+               {
+                tabContent += wrapField(name, `<input type="range" name="${safeName}" class="form-range" min="0" max="100">`, i, idx );
+               }
+               else if(func === 'review')
+               {
+                tabContent += wrapField(name, `<textarea name="${safeName}" class="form-control" rows="4" placeholder="write your review"></textarea>`, i, idx);
+               }
+               else if(func === 'table')
+               {
+                tabContent += wrapField(name,`<table class="table table-bordered"><tr><th>column1</th><th>column 2</th></tr><table>`,i, idx);
+               }
+               else if(func === 'table-checkbox')
+               {
+                tabContent += wrapField(name, `<table class="table table-bordered">
+                                            <tr><th>Select</th><th> Item</th><tr>
+                                            ${children.map(o=> `
+                                            <tr>
+                                            <td><input name="${safeName}[]" type="checkbox" value="${o.name}"></td>
+                                            <td>${o.name}</td>
+                                            </tr>
+
+                `).join('')}
+                </table>`, i, idx);
+               }
+              else if(func === 'column-table')
+              {
+                tabContent += wrapField(name,`<table class="table table-striped"><tr><th>Column A</th><th> Column B</th></tr><table>`, i, idx);
+              }
+              else if(func === 'logo' || func === 'image' || func === 'banner')
+              {
+                tabContent += wrapField(name, `<input class="form-control" type="file" name="${safeName}" accept="image/*">`,i, idx);
+              }
+               else if(func === 'video' || func === 'album')
+               {
+                tabContent += wrapField(name, `<input class="form-control" type="file" accept="video/*"name="${safeName}">`,i , idx);
+               }
+               else if(func === 'date')
+               {
+                 tabContent += wrapField(name, `<input type="date" class="form-control" name="${safaName}">`,i, idx);
+               }
+               else if(func ===  'date-time')
+               {
+                  tabContent += wrapField(name, `<input type="datetime-local" name="${safeName}" class="form-control">`, i, idx);
+               }
+               else if(func === 'time')
+               {
+                 tabContent += wrapField(name, `<input type="time" name="${safeName}" class="form-control">`, i, idx);
+               }
+          
+                    else {
+                        tabContent += wrapField(name, `<input class="form-control" type="text" name="${safeName}">`, i, idx);
+                    }
+                });
+
+                return `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading${s.id}">
+                            <button class="accordion-button ${i === 0 ? '' : 'collapsed'}" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#collapse${s.id}">
+                                ${s.name}
+                            </button>
+                        </h2>
+                        <div id="collapse${s.id}" class="accordion-collapse collapse ${i === 0 ? 'show' : ''}" data-bs-parent="#previewAccordion">
+                            <div class="accordion-body">
+                                ${tabContent}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-success">Submit</button>
+        </div>
+    `;
+}
+
+    wrapper.innerHTML = html;
+}
+document.getElementById("viewTypeSelect").addEventListener("change", function () {
+    viewType = this.value;
+    showFormPreview(globalSteps); // अब fresh preview
+});
+// ------------------------ LAYOUT ------------------------
+
+/*function applyFieldLayout(columns, mode = "builder") {
+    const containerId = mode === "preview" ? "#previewTabsContent" : "#formTabsContent";
+    const tabPanes = document.querySelectorAll(`${containerId} .tab-pane`);
+
+    tabPanes.forEach(pane => {
+        const fields = Array.from(pane.querySelectorAll("[data-step-index], .mb-9")); 
+        if (fields.length === 0) return;
+
+        // Clear pane
+        pane.innerHTML = "";
+
+        let row = document.createElement("div");
+        row.className = "row";
+
+        fields.forEach(f => {
+            let col = document.createElement("div");
+            if (columns == 1) col.className = "col-md-12";
+            if (columns == 2) col.className = "col-md-6";
+            if (columns == 3) col.className = "col-md-4";
+
+            // 👉 clone for preview mode
+            const fieldNode = (mode === "preview") ? f.cloneNode(true) : f;
+            col.appendChild(fieldNode);
+            row.appendChild(col);
+        });
+
+        pane.appendChild(row);
+    });
+}*/
+function applyFieldLayout(columns, mode = "builder") {
+    let containerSelector;
+
+    if (mode === "preview") {
+        if (viewType === "vertical-tab" || viewType === "horizontal-tab") {
+            containerSelector = "#previewDynamicForm .tab-pane";
+        } 
+        else if (viewType === "multi-step") {
+            containerSelector = "#previewDynamicForm .step";
+        } 
+        else if (viewType === "accordion") {
+            containerSelector = "#previewDynamicForm .accordion-body";
+        }
+    } else {
+        containerSelector = "#formTabsContent .tab-pane";
+    }
+
+    const panes = document.querySelectorAll(containerSelector);
+
+    panes.forEach(pane => {
+        const fields = Array.from(pane.querySelectorAll("[data-step-index], .mb-9, .form-group, .form-check")); 
+        if (fields.length === 0) return;
+
+        // Save old fields
+        const saved = [...fields];
+
+        // Reset
+        pane.innerHTML = "";
+
+        let row = document.createElement("div");
+        row.className = "row";
+
+        saved.forEach(f => {
+            let col = document.createElement("div");
+            if (columns == 1) col.className = "col-md-12";
+            if (columns == 2) col.className = "col-md-6";
+            if (columns == 3) col.className = "col-md-4";
+
+            col.appendChild(f);
+            row.appendChild(col);
+        });
+
+        pane.appendChild(row);
+    });
+}
+
+// ------------------------ EVENT BINDINGS ------------------------
+
+/*document.getElementById("contentLayoutSelector").addEventListener("change", function () {
+    const cols = parseInt(this.value);
+    applyFieldLayout(cols, "preview");
+});
+
+document.addEventListener("shown.bs.tab", function (e) {
+    if (e.target.closest("#previewTabs")) {
+        const cols = parseInt(document.getElementById("contentLayoutSelector").value || 1);
+        applyFieldLayout(cols, "preview");
+    }
+});*/
+document.addEventListener("shown.bs.tab", function (e) {
+    if (e.target.closest("#previewDynamicForm")) {
+        const cols = parseInt(document.getElementById("contentLayoutSelector")?.value || 1);
+        applyFieldLayout(cols, "preview");
+    }
+});
+
+// ========== Wrap Field (Preview Mode) ==========
+function wrapField(label, html, stepIndex, fieldIndex, mode) {
+    return `
+        <div class="mb-9 position-relative border rounded p-2">
+            <label class="form-label">${label}</label>
+            ${html}
+        </div>
+    `;
+}
+
+function renderPreviewStep(steps, stepIndex) {
+    const tabs = document.querySelectorAll("#previewTabs .nav-link");
+    const panes = document.querySelectorAll("#previewTabsContent .tab-pane");
+
+    if (!tabs.length || !panes.length) return; // ✅ अगर tab वाला view ही नहीं है तो कुछ मत करो
+
+    tabs.forEach((tab, i) => {
+        tab.classList.toggle("active", i === stepIndex);
+    });
+    panes.forEach((pane, i) => {
+        pane.classList.toggle("show", i === stepIndex);
+        pane.classList.toggle("active", i === stepIndex);
+    });
+
+    // Buttons visibility
+    document.getElementById("prevStepBtn").style.display = stepIndex > 0 ? "inline-block" : "none";
+    document.getElementById("nextStepBtn").style.display = stepIndex < steps.length - 1 ? "inline-block" : "none";
+    document.getElementById("saveFormBtn").style.display = stepIndex === steps.length - 1 ? "inline-block" : "none";
 }
 
 
@@ -1105,6 +1633,10 @@ function showEmbed() {
     document.getElementById('embedContainer').style.display = 'block';
     document.getElementById('embedHtmlCode').textContent = embedCode;
 }
+
+ 
+
+
 /*function showEmbed() {
     const level3 = document.getElementById('level3').value;
 
