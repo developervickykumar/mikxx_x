@@ -194,7 +194,7 @@
                          
                      <a href="javascript: void(0);" class="has-arrow">
                                 <i class="mdi mdi-cog"></i>
-                                <span data-key="t-authentication">Settings</span>
+                                <span data-key="t-authentication">Setting</span>
                             </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li>
@@ -206,11 +206,12 @@
                     <li>
                         <form action="{{url('logout')}}" method="post">
                             @csrf
-                         <button class="btn btn btn-primary">
+                         <button class="btn btn btn-none">
                         <i data-feather="chevron-right"></i>
-                        Logout</button>
+                        <span>Logout</span>
+                       </button>
                         </form>
-                    </a>
+                    
                     </li>
                     
                      <li>

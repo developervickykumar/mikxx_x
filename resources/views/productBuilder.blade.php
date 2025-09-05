@@ -1469,37 +1469,7 @@ document.getElementById("viewTypeSelect").addEventListener("change", function ()
     viewType = this.value;
     showFormPreview(globalSteps); // अब fresh preview
 });
-// ------------------------ LAYOUT ------------------------
 
-/*function applyFieldLayout(columns, mode = "builder") {
-    const containerId = mode === "preview" ? "#previewTabsContent" : "#formTabsContent";
-    const tabPanes = document.querySelectorAll(`${containerId} .tab-pane`);
-
-    tabPanes.forEach(pane => {
-        const fields = Array.from(pane.querySelectorAll("[data-step-index], .mb-9")); 
-        if (fields.length === 0) return;
-
-        // Clear pane
-        pane.innerHTML = "";
-
-        let row = document.createElement("div");
-        row.className = "row";
-
-        fields.forEach(f => {
-            let col = document.createElement("div");
-            if (columns == 1) col.className = "col-md-12";
-            if (columns == 2) col.className = "col-md-6";
-            if (columns == 3) col.className = "col-md-4";
-
-            // 👉 clone for preview mode
-            const fieldNode = (mode === "preview") ? f.cloneNode(true) : f;
-            col.appendChild(fieldNode);
-            row.appendChild(col);
-        });
-
-        pane.appendChild(row);
-    });
-}*/
 function applyFieldLayout(columns, mode = "builder") {
     let containerSelector;
 

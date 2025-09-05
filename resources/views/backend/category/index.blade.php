@@ -783,6 +783,11 @@ label {
                             <i class="mdi mdi-cog-outline fs-4 icon-choice ms-2" data-bs-toggle="modal"
                                 data-bs-target="#permissionModal" style="cursor: pointer;"></i>
                         </div>
+                        <div class="export btn">
+                            <button type="button" class="btn btn-outline-primary px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-700" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                              Import
+                            </button>
+                        </div>
                     </div>
                 </div>
 

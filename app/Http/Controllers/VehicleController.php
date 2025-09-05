@@ -9,7 +9,7 @@ use App\Models\VehicleDetail;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
-
+use Iluminate\Support\Facedes\DB;
 class VehicleController extends Controller
 {
    
@@ -28,14 +28,7 @@ class VehicleController extends Controller
 
 
 
-   // Show form
-   /* public function create()
-    {
-        $productTypes = Category::whereNull('parent_id')->get();
-        return view('vehicle.create', compact('productTypes'));
-    }*/
-
-    // Return subcategories or steps via AJAX
+   
     public function fetchChildren($id)
     {
         $cat = Category::with('child.child.child')->findOrFail($id);
@@ -146,7 +139,7 @@ class VehicleController extends Controller
 }
 
 //import google sheert
-public function importCSV(Request $request)
+/*public function importCSV(Request $request)
 {
      if(Auth::check())
        {
@@ -215,8 +208,251 @@ public function importCSV(Request $request)
     {
       return redirect('login');
     }
-}
+}*/
 
+/*public function importCSV(Request $request)
+{
+    if(!Auth::check()){
+        return view('login');
+    }
+    $request->validate([
+        'csv_file'=> 'required|file|mimes:csv,txt,xlsx'
+    ]);
+    $file= $request->file('csv_file');
+    $extension = $file->getClientOriginalExtension();
+
+    $insertableColumn = [
+        'name','level_name','parent_id','position','level','conditions','path','image','icon','is_producted',
+        'priority','functionality','group_view','code','status','created_at','update_at','messages','notifications','price_list',
+        'create_form','label_json','meta','display','seo','is_excluded','advanced','subscription_plan','is_published'
+    ];
+    if($extension === 'csv' || $extension=== 'txt'){
+        $handle = fopen($file->getRealPath(),'r');
+        $header = fgetcsv($handle);
+        while(($row = fgetcsv($handle)) !== false)
+        {
+            $rewData = array_combine($header, $row);
+
+            $dataToInsert = [];
+            foreach($insertableColumn as $col)
+            {
+                $dataToInsert[$col] = $rowData[$col] ?? null;
+            }
+            Category::create($dataToInsert);
+        }
+        fclose($handle);
+    }
+    elseif($extension === 'xlsx')
+    {
+        $data = readXlsx($file->getRealPath());
+
+        if(!empty($data)){
+            $header = $data[0];
+            unset($data[0]);
+
+            foreach($data as $row)
+            {
+                $rowData = array_combine($header,$row);
+                $dataToInsert = [];
+                foreach($insertableColumns as $col)
+                {
+                    $dataToInsert[$col] = $rowData[$col] ?? null;
+
+                }
+                Category::create($dataToInsert);
+            }
+
+        }
+        else {
+            return redirect()->back()->with('error','file is empty');
+        }
+    
+    }
+    return redirect()->back()->with('success','File imported successfully');
+}*/
+/*public function importCSV(Request $request)
+{
+    if (!Auth::check()) {
+        return view('login');
+    }
+
+    $request->validate([
+        'csv_file' => 'required|file|mimes:csv,txt,xlsx'
+    ]);
+
+    $file = $request->file('csv_file');
+    $extension = $file->getClientOriginalExtension();
+
+    $insertableColumn = [
+        'name','level_name','parent_id','position','level','conditions','path','image','icon','is_producted',
+        'priority','validation','tooltip','description','functionality','display_at','group_view','code','status','created_at','label','update_at','messages','notifications','price_list',
+        'create_form','label_json','meta','display','seo','is_excluded','advanced','subscription_plan','is_published'
+    ];
+
+    if ($extension === 'csv' || $extension === 'txt') {
+        $handle = fopen($file->getRealPath(), 'r');
+        $header = fgetcsv($handle);
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowData = array_combine($header, $row); // ✅ fixed name
+
+            if (empty($rowData['name'])) {
+                // skip rows without name
+                continue;
+            }
+
+            $dataToInsert = [];
+            foreach ($insertableColumn as $col) {
+                $dataToInsert[$col] = $rowData[$col] ?? null;
+            }
+
+            Category::create($dataToInsert);
+        }
+
+        fclose($handle);
+
+    } elseif ($extension === 'xlsx') {
+    $data = readXlsx($file->getRealPath());
+    
+    if (!empty($data)) {
+        $header = array_map(fn($h) => strtolower(trim($h)), $data[0]);
+        unset($data[0]);
+
+        foreach ($data as $row) {
+            // ✅ row ko normalize karo
+            if (count($header) !== count($row)) {
+                $row = array_pad($row, count($header), null); // missing values → null
+                $row = array_slice($row, 0, count($header)); // extra values → trim
+            }
+
+            $rowData = array_combine($header, $row);
+
+            if (empty($rowData['name'])) {
+                continue; // skip blank rows
+            }
+
+            $dataToInsert = [];
+            foreach ($insertableColumn as $col) {
+                  if ($col === 'status') {
+                        $dataToInsert[$col] = $rowData[$col] ?? 'active';
+                    } else {
+                        $dataToInsert[$col] = $rowData[$col] ?? null;
+                    }
+            }
+             
+            dd($dataToInsert);
+            Category::create($dataToInsert);
+        }
+    } else {
+        return redirect()->back()->with('error', 'File is empty');
+    }
+}
+    return redirect()->back()->with('success', 'File imported successfully');
+}*/
+
+public function importcsv(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:csv,txt,xlsx'
+    ]);
+
+    $file = $request->file('file');
+    $extension = strtolower($file->getClientOriginalExtension());
+    $path = $file->getRealPath();
+
+    // ✅ Allowed DB columns (as per your Category model)
+    $insertableColumn = [
+        'name','position','parent_id','level','status','image','icon','is_protected',
+        'label','label_json','meta','display','messages','notifications','group_view',
+        'price_list','code','seo','advanced','subscription_plans','is_excluded','is_published'
+    ];
+
+    // ✅ Aliases (header fix)
+    $aliases = [
+        'is_producted'      => 'is_protected',
+        'subscription_plan' => 'subscription_plans',
+        'update_at'         => 'updated_at', // अगर कहीं गलती से आया तो
+    ];
+
+    $rows = [];
+
+    // --- CSV / TXT Import ---
+    if ($extension === 'csv' || $extension === 'txt') {
+        $handle = fopen($path, 'r');
+        $header = fgetcsv($handle);
+
+        // normalize header
+        $header = array_map(fn($h) => strtolower(trim($h)), $header);
+        $header = array_map(fn($h) => $aliases[$h] ?? $h, $header);
+
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($header) !== count($row)) {
+                $row = array_pad($row, count($header), null);
+                $row = array_slice($row, 0, count($header));
+            }
+            $rows[] = array_combine($header, $row);
+        }
+        fclose($handle);
+    }
+
+    // --- Excel (XLSX) Import ---
+    elseif ($extension === 'xlsx') {
+        $data = readXlsx($path);
+        if (empty($data) || count($data) < 2) {
+            return redirect()->back()->with('error', 'Excel file is empty or invalid.');
+        }
+
+        $header = array_map(fn($h) => strtolower(trim($h)), $data[0]);
+        $header = array_map(fn($h) => $aliases[$h] ?? $h, $header);
+
+        foreach (array_slice($data, 1) as $row) {
+            if (count($header) !== count($row)) {
+                $row = array_pad($row, count($header), null);
+                $row = array_slice($row, 0, count($header));
+            }
+            $rows[] = array_combine($header, $row);
+        }
+    }
+
+    // ✅ Prepare insert data
+    $insertData = [];
+   dd($insertData);
+    foreach ($rows as $rowData) {
+        if (empty($rowData['name'])) {
+            continue; // skip empty rows
+        }
+
+        // Only allowed columns
+        $rowData = array_intersect_key($rowData, array_flip($insertableColumn));
+
+        // Default status
+        if (empty($rowData['status'])) {
+            $rowData['status'] = 'active';
+        }
+
+        // Clean values
+        foreach ($rowData as $k => $v) {
+            if ($v === '' || $v === null) {
+                $rowData[$k] = null;
+            }
+        }
+
+        $rowData['created_at'] = now();
+        $rowData['updated_at'] = now();
+
+        $insertData[] = $rowData;
+    }
+
+    dd($insertData);
+    // ✅ Save in DB
+    if (!empty($insertData)) {
+        DB::table('categories')->insert($insertData);
+    } else {
+        return redirect()->back()->with('error', 'No valid rows found in file.');
+    }
+
+    return redirect()->back()->with('success', 'File imported successfully.');
+}
 
 //export the data in excel or csv file 
 public function  export($type = 'csv')
