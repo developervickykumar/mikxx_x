@@ -456,9 +456,11 @@
                             
                             <div class="gift-grid">
                                 @foreach($giftItems as $giftItem)
+                              
                                     @php
                                         $priceList = $giftItem->price_list ? json_decode($giftItem->price_list, true) : null;
                                         $priceValue = $priceList['value'] ?? 0;
+                                       
                                     @endphp
                             
                                     <div class="gift-item {{ ($priceValue > 0) ? 'flip-container' : '' }}" onclick="selectGift(this, {{ $giftItem->id }})" data-gift-id="{{ $giftItem->id }}">

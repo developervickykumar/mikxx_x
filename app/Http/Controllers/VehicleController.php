@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Iluminate\Support\Facedes\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 class VehicleController extends Controller
 {
    
@@ -350,7 +351,7 @@ class VehicleController extends Controller
     return redirect()->back()->with('success', 'File imported successfully');
 }*/
 
-public function importcsv(Request $request)
+/*public function importcsv(Request $request)
 {
     $request->validate([
         'file' => 'required|file|mimes:csv,txt,xlsx'
@@ -416,7 +417,7 @@ public function importcsv(Request $request)
 
     // ✅ Prepare insert data
     $insertData = [];
-   dd($insertData);
+   
     foreach ($rows as $rowData) {
         if (empty($rowData['name'])) {
             continue; // skip empty rows
@@ -452,6 +453,538 @@ public function importcsv(Request $request)
     }
 
     return redirect()->back()->with('success', 'File imported successfully.');
+}*/
+/*public function importCSV(Request $request)
+{
+    $request->validate([
+        'csv_file' => 'required|mimes:csv,txt,xlsx'
+    ]);
+
+    $file = $request->file('csv_file');
+    $extension = $file->getClientOriginalExtension();
+
+    // ---- Default JSON structures ----
+    $jsonDefaults = [
+        'meta' => [
+            "meta_title" => "",
+            "meta_description" => "",
+            "meta_keywords" => ""
+        ],
+        'tooltip' => [
+            "tooltip" => "",
+            "validation" => "",
+            "description" => ""
+        ],
+        'validation' => [
+            "product_type" => null,
+            "value" => null,
+            "conversion_rate" => null,
+            "theme" => null,
+            "service_duration" => null,
+            "service_area" => null,
+            "event_date" => null,
+            "event_location" => null
+        ],
+        'seo' => [],
+        'advanced' => [],
+        'subscription_plans' => [],
+        'messages' => [],
+        'notifications' => [],
+        'price_list' => [],
+        'label_json' => [],
+        'display' => [],
+        'group_view' => [],
+    ];
+
+   $boolFields = ['is_excluded','is_published','is_protected'];
+   
+    // ---- CSV / TXT ----
+    if (in_array($extension, ['csv','txt'])) {
+        $data = array_map('str_getcsv', file($file->getRealPath()));
+        $header = array_map('trim', array_shift($data));
+
+        foreach ($data as $row) {
+            $rowData = $this->normalizeRow($header, $row);
+
+            // status default
+            if (empty($rowData['status'])) {
+                $rowData['status'] = 'active';
+            }
+
+            $this->saveRow($rowData, $jsonDefaults, $boolFields);
+        }
+    }
+
+    // ---- XLSX ----
+    elseif ($extension === 'xlsx') {
+        $data = $this->readXlsx($file->getRealPath());
+
+        if (!empty($data)) {
+            $header = array_map(fn($h) => strtolower(trim($h)), $data[0]);
+            unset($data[0]);
+
+            foreach ($data as $row) {
+                $rowData = $this->normalizeRow($header, $row);
+
+                // status default
+                if (empty($rowData['status'])) {
+                    $rowData['status'] = 'active';
+                }
+
+                $this->saveRow($rowData, $jsonDefaults, $boolFields);
+            }
+        }
+    }
+
+    return back()->with('success', 'File imported successfully!');
+}
+
+/**
+ * ✅ Row normalize (numbers fix + header match)
+ */
+/*private function normalizeRow($row)
+{
+    // default JSON structures
+    $jsonDefaults = [
+        'label_json' => '{}',
+        'meta' => '{"meta_title":"","meta_description":"","meta_keywords":""}',
+        'display' => '[]',
+        'messages' => '[]',
+        'notifications' => '[]',
+        'group_view' => '[]',
+        'price_list' => '{"product_type":null,"value":null,"conversion_rate":null,"theme":null,"service_duration":null,"service_area":null,"event_date":null,"event_location":null}',
+        'seo' => '[]',
+        'advanced' => '[]',
+        'subscription_plans' => '[]',
+        'is_protected' => '{"own":"","user":"","other":""}',
+    ];
+
+    return [
+        'name'              => $row['name'] ?? null,
+        'position'          => isset($row['position']) ? (int)$row['position'] : 0,
+        'parent_id'         => isset($row['parent_id']) ? (int)$row['parent_id'] : 0,
+        'level'             => isset($row['level']) ? (int)$row['level'] : 0,
+        'status'            => isset($row['status']) ? strtolower(trim($row['status'])) : 'active',
+        'image'             => !empty($row['image']) ? $row['image'] : null,
+        'icon'              => !empty($row['icon']) ? $row['icon'] : null,
+
+        // JSON as raw string (cell value or default)
+        'is_protected'      => !empty($row['is_protected']) ? $row['is_protected'] : $jsonDefaults['is_protected'],
+        'label'             => $row['label'] ?? null,
+        'label_json'        => !empty($row['label_json']) ? $row['label_json'] : $jsonDefaults['label_json'],
+        'meta'              => !empty($row['meta']) ? $row['meta'] : $jsonDefaults['meta'],
+        'display'           => !empty($row['display']) ? $row['display'] : $jsonDefaults['display'],
+        'messages'          => !empty($row['messages']) ? $row['messages'] : $jsonDefaults['messages'],
+        'notifications'     => !empty($row['notifications']) ? $row['notifications'] : $jsonDefaults['notifications'],
+        'group_view'        => !empty($row['group_view']) ? $row['group_view'] : $jsonDefaults['group_view'],
+        'price_list'        => !empty($row['price_list']) ? $row['price_list'] : $jsonDefaults['price_list'],
+        'seo'               => !empty($row['seo']) ? $row['seo'] : $jsonDefaults['seo'],
+        'advanced'          => !empty($row['advanced']) ? $row['advanced'] : $jsonDefaults['advanced'],
+        'subscription_plans'=> !empty($row['subscription_plans']) ? $row['subscription_plans'] : $jsonDefaults['subscription_plans'],
+
+        // Normal fields
+        'code'              => $row['code'] ?? null,
+
+        // Booleans
+        'is_excluded'       => isset($row['is_excluded']) ? (int)$row['is_excluded'] : 0,
+        'is_published'      => isset($row['is_published']) ? (int)$row['is_published'] : 0,
+    ];
+}
+/**
+ * ✅ Row save
+ */
+/*private function saveRow($rowData, $jsonDefaults, $boolFields)
+{
+    if (empty($rowData['name'])) {
+        return; // skip blank rows
+    }
+
+    $dataToInsert = [];
+
+    foreach ($rowData as $col => $value) {
+
+        // Boolean fields
+        if (in_array($col, $boolFields)) {
+            $dataToInsert[$col] = $value == '1' ? 1 : 0;
+            continue;
+        }
+
+        // JSON fields (direct string hi save karna h)
+        if (array_key_exists($col, $jsonDefaults)) {
+            $dataToInsert[$col] = $value ?: $jsonDefaults[$col];
+            continue;
+        }
+
+        // is_protected (fixed JSON)
+        if ($col === 'is_protected' || $col === 'priority') {
+            $dataToInsert[$col] = $value ?: '{"own":"","user":"","other":""}';
+            continue;
+        }
+
+        // Normal fields
+        $dataToInsert[$col] = ($value === '' ? null : $value);
+    }
+
+    // ✅ insert into DB
+    \App\Models\Category::create($dataToInsert);
+}
+
+/**
+ * ✅ XLSX Reader (basic)
+ */
+/*
+private function readXlsx($path)
+{
+    $zip = new \ZipArchive;
+    if ($zip->open($path) === true) {
+        $xml = $zip->getFromName('xl/sharedStrings.xml');
+        $sharedStrings = [];
+
+        if ($xml !== false) {
+            $dom = new \DOMDocument();
+            $dom->loadXML($xml);
+            foreach ($dom->getElementsByTagName('t') as $t) {
+                $sharedStrings[] = $t->nodeValue;
+            }
+        }
+
+        $sheet = $zip->getFromName('xl/worksheets/sheet1.xml');
+        if ($sheet !== false) {
+            $dom = new \DOMDocument();
+            $dom->loadXML($sheet);
+            $rows = $dom->getElementsByTagName('row');
+            $data = [];
+
+            foreach ($rows as $row) {
+                $rowData = [];
+                foreach ($row->getElementsByTagName('c') as $c) {
+                    $v = $c->getElementsByTagName('v')->item(0)->nodeValue ?? '';
+                    $type = $c->getAttribute('t');
+                    if ($type === 's') {
+                        $v = $sharedStrings[(int)$v] ?? $v;
+                    }
+                    $rowData[] = $v;
+                }
+                $data[] = $rowData;
+            }
+            return $data;
+        }
+    }
+    return [];
+}*/
+/*public function importCSV(Request $request) 
+    {
+        $request->validate([
+            'csv_file' => 'required|mimes:csv,txt,xlsx'
+        ]);
+
+        $file = $request->file('csv_file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // ---- Default JSON structures ----
+        $jsonDefaults = [
+            'meta' => [
+                "meta_title" => "",
+                "meta_description" => "",
+                "meta_keywords" => ""
+            ],
+            'tooltip' =>[
+                "tooltip" => "",
+                "validation" => "",
+                "description" => ""
+            ],
+            'validation' =>[
+                "product_type" => null,
+                "value" => null,
+                "conversion_rate" => null,
+                "theme" => null,
+                "service_duration" => null,
+                "service_area" => null,
+                "event_date" => null,
+                "event_location" => null
+            ],
+            'seo' => [],
+            'advanced' => [],
+            'subscription_plans' => [],
+            'messages' =>[],
+            'notifications' => [],
+            'price_list' =>[],
+            'label_json' => [],
+            'display' => [],
+            'group_view' => [],
+        ];
+
+        // ---- Boolean fields ----
+        $boolFields = ['is_excluded','is_published','is_protected'];
+
+        $rows = [];
+
+        // ---- CSV / TXT ----
+        if (in_array($extension, ['csv','txt'])) {
+            $data = array_map('str_getcsv', file($file->getRealPath()));
+            $header = array_map('trim', array_shift($data));
+            foreach ($data as $row) {
+                $row = array_slice($row, 0, count($header)); 
+                $row = array_pad($row, count($header), null);
+                $rows[] = array_combine($header, $row);
+            }
+        }
+
+        // ---- XLSX ----
+        elseif ($extension === 'xlsx') {
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, true, true, true);
+
+            // first row is header
+            $header = array_map('trim', array_values($data[1]));
+            unset($data[1]);
+
+            foreach ($data as $row) {
+                $rowValues = array_values($row);
+                $row = array_combine($header, $rowValues);
+                $rows[] = $row;
+            }
+        }
+
+        // ---- Process & Save Rows ----
+        foreach ($rows as $row) {
+            $rowData = $this->normalizeRow($row, $jsonDefaults);
+            if (!empty($rowData['name'])) {
+                $this->saveRow($rowData, $jsonDefaults, $boolFields);
+            }
+        }
+
+        return back()->with('success', 'File imported successfully!');
+    }
+
+    /**
+     * ✅ Normalize Row
+     */
+    /*private function normalizeRow($row, $jsonDefaults)
+    {
+        return [
+            'name'              => $row['name'] ?? null,
+            'position'          => isset($row['position']) ? (int)$row['position'] : 0,
+            'parent_id'         => isset($row['parent_id']) ? (int)$row['parent_id'] : 0,
+            'level'             => isset($row['level']) ? (int)$row['level'] : 0,
+            'status'            => isset($row['status']) ? strtolower(trim($row['status'])) : 'active',
+            'image'             => $row['image'] ?? null,
+            'icon'              => $row['icon'] ?? null,
+
+            // is_protected → sirf integer flag
+            'is_protected'      => isset($row['is_protected']) ? (int)$row['is_protected'] : 0,
+
+            'label'             => $row['label'] ?? null,
+            'label_json'        => $row['label_json'] ?? $jsonDefaults['label_json'],
+            'meta'              => $row['meta'] ?? $jsonDefaults['meta'],
+            'display'           => $row['display'] ?? $jsonDefaults['display'],
+            'messages'          => $row['messages'] ?? $jsonDefaults['messages'],
+            'notifications'     => $row['notifications'] ?? $jsonDefaults['notifications'],
+            'group_view'        => $row['group_view'] ?? $jsonDefaults['group_view'],
+            'price_list'        => $row['price_list'] ?? $jsonDefaults['price_list'],
+            'seo'               => $row['seo'] ?? $jsonDefaults['seo'],
+            'advanced'          => $row['advanced'] ?? $jsonDefaults['advanced'],
+            'subscription_plans'=> $row['subscription_plans'] ?? $jsonDefaults['subscription_plans'],
+
+            'code'              => $row['code'] ?? null,
+
+            'is_excluded'       => isset($row['is_excluded']) ? (int)$row['is_excluded'] : 0,
+            'is_published'      => isset($row['is_published']) ? (int)$row['is_published'] : 0,
+        ];
+    }
+
+    /**
+     * ✅ Save Row
+     */
+    /*private function saveRow($rowData, $jsonDefaults, $boolFields)
+    {
+        $dataToInsert = [];
+
+        foreach ($rowData as $col => $value) {
+            // Boolean fields
+            if (in_array($col, $boolFields)) {
+                $dataToInsert[$col] = $value ? 1 : 0;
+                continue;
+            }
+
+            // JSON fields
+          if (array_key_exists($col, $jsonDefaults)) {
+    $dataToInsert[$col] = $value 
+        ? (is_array($value) ? json_encode($value) : $value) 
+        : json_encode($jsonDefaults[$col]);
+    continue;
+}
+
+            // Normal fields
+            $dataToInsert[$col] = ($value === '' ? null : $value);
+        }
+
+        Category::create($dataToInsert);
+    }*/
+
+
+public function importCSV(Request $request) 
+{
+    $request->validate([
+        'csv_file' => 'required|mimes:csv,txt,xlsx'
+    ]);
+
+    $file = $request->file('csv_file');
+    $extension = strtolower($file->getClientOriginalExtension());
+
+    // ---- Default JSON structures ----
+    $jsonDefaults = [
+        'meta' => [
+            "meta_title" => "",
+            "meta_description" => "",
+            "meta_keywords" => ""
+        ],
+        'tooltip' =>[
+            "tooltip" => "",
+            "validation" => "",
+            "description" => ""
+        ],
+        'validation' =>[
+            "product_type" => null,
+            "value" => null,
+            "conversion_rate" => null,
+            "theme" => null,
+            "service_duration" => null,
+            "service_area" => null,
+            "event_date" => null,
+            "event_location" => null
+        ],
+        'seo' => [],
+        'advanced' => [],
+        'subscription_plans' => [],
+        'messages' => [],
+        'notifications' => [],
+        'price_list' => [],
+        'label_json' => [],
+        'display' => [],
+        'group_view' => [],
+    ];
+
+    // ---- Boolean fields ----
+    $boolFields = ['is_excluded','is_published','is_protected'];
+
+    $rows = [];
+
+    // ---- CSV / TXT ----
+    if (in_array($extension, ['csv','txt'])) {
+        $data = array_map('str_getcsv', file($file->getRealPath()));
+        $header = array_map('trim', array_shift($data));
+        foreach ($data as $row) {
+            $row = array_slice($row, 0, count($header)); 
+            $row = array_pad($row, count($header), null);
+            $rows[] = array_combine($header, $row);
+        }
+    }
+
+    // ---- XLSX ----
+    elseif ($extension === 'xlsx') {
+        $spreadsheet = IOFactory::load($file->getRealPath());
+        $sheet = $spreadsheet->getActiveSheet();
+        $data = $sheet->toArray(null, true, true, true);
+
+        // first row is header
+        $header = array_map('trim', array_values($data[1]));
+        unset($data[1]);
+
+        foreach ($data as $row) {
+            $rowValues = array_values($row);
+            $row = array_combine($header, $rowValues);
+            $rows[] = $row;
+        }
+    }
+
+    // ---- Process & Save Rows ----
+    foreach ($rows as $row) {
+        $rowData = $this->normalizeRow($row, $jsonDefaults);
+        if (!empty($rowData['name'])) {
+            $this->saveRow($rowData, $jsonDefaults, $boolFields);
+        }
+    }
+
+    return back()->with('success', 'File imported successfully!');
+}
+
+/**
+ * ✅ Normalize Row
+ */
+private function normalizeRow($row, $jsonDefaults)
+{
+    return [
+        'name'              => $row['name'] ?? null,
+        'position'          => isset($row['position']) ? (int)$row['position'] : 0,
+        'parent_id'         => isset($row['parent_id']) ? (int)$row['parent_id'] : 0,
+        'level'             => isset($row['level']) ? (int)$row['level'] : 0,
+        'status'            => isset($row['status']) ? strtolower(trim($row['status'])) : 'active',
+        'image'             => $row['image'] ?? null,
+        'icon'              => $row['icon'] ?? null,
+
+        // is_protected → sirf integer flag
+        'is_protected'      => isset($row['is_protected']) ? (int)$row['is_protected'] : 0,
+
+        'label'             => $row['label'] ?? null,
+        'label_json'        => $row['label_json'] ?? $jsonDefaults['label_json'],
+        'meta'              => $row['meta'] ?? $jsonDefaults['meta'],
+        'display'           => $row['display'] ?? $jsonDefaults['display'],
+        'messages'          => $row['messages'] ?? $jsonDefaults['messages'],
+        'notifications'     => $row['notifications'] ?? $jsonDefaults['notifications'],
+        'group_view'        => $row['group_view'] ?? $jsonDefaults['group_view'],
+        'price_list'        => $row['price_list'] ?? $jsonDefaults['price_list'],
+        'seo'               => $row['seo'] ?? $jsonDefaults['seo'],
+        'advanced'          => $row['advanced'] ?? $jsonDefaults['advanced'],
+        'subscription_plans'=> $row['subscription_plans'] ?? $jsonDefaults['subscription_plans'],
+
+        'code'              => $row['code'] ?? null,
+
+        'is_excluded'       => isset($row['is_excluded']) ? (int)$row['is_excluded'] : 0,
+        'is_published'      => isset($row['is_published']) ? (int)$row['is_published'] : 0,
+    ];
+}
+
+/**
+ * ✅ Save Row
+ */
+private function saveRow($rowData, $jsonDefaults, $boolFields)
+{
+    $dataToInsert = [];
+
+    foreach ($rowData as $col => $value) {
+        // Boolean fields
+        if (in_array($col, $boolFields)) {
+            $dataToInsert[$col] = $value ? 1 : 0;
+            continue;
+        }
+
+        // JSON fields
+        if (array_key_exists($col, $jsonDefaults)) {
+            if ($value === null || $value === '' || $value === 'null' || $value === '[]' || $value === '{}') {
+                $dataToInsert[$col] = null; // empty → NULL
+            } else {
+                if (is_array($value)) {
+                    $dataToInsert[$col] = json_encode($value, JSON_UNESCAPED_UNICODE);
+                } else {
+                    // check if valid JSON
+                    json_decode($value);
+                    if (json_last_error() === JSON_ERROR_NONE) {
+                        $dataToInsert[$col] = $value; // already valid JSON
+                    } else {
+                        $dataToInsert[$col] = json_encode([$value], JSON_UNESCAPED_UNICODE);
+                    }
+                }
+            }
+            continue;
+        }
+
+        // Normal fields
+        $dataToInsert[$col] = ($value === '' ? null : $value);
+    }
+
+    Category::create($dataToInsert);
 }
 
 //export the data in excel or csv file 

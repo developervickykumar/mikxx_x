@@ -10,8 +10,48 @@ use Illuminate\Support\Facades\Cache;
 class Category extends Model
 {
     use HasFactory;
+protected $fillable = [
+    'name',
+    'position',
+    'parent_id',
+    'level',
+    'status',
+    'image',
+    'icon',
+    'is_protected',
+    'label',
+    'label_json',
+    'meta',
+    'display',
+    'messages',
+    'notifications',
+    'group_view',
+    'price_list',
+    'code',
+    'seo',
+    'advanced',
+    'subscription_plans',
+    'is_excluded',
+    'is_published'
+];
 
-      protected $fillable = [
+protected $casts = [
+    'label_json' => 'array',
+    'meta' => 'array',
+    'display' => 'array',
+    'messages' => 'array',
+    'notifications' => 'array',
+    'group_view' => 'array',
+    'seo' => 'array',
+    'advanced' => 'array',
+    'subscription_plans' => 'array',
+    'price_list' => 'array',
+    'is_protected' => 'array',
+    'is_excluded' => 'boolean',
+    'is_published' => 'boolean'
+];
+
+      /*protected $fillable = [
             'name',
             'position',
             'parent_id',
@@ -46,7 +86,7 @@ class Category extends Model
             'subscription_plans' => 'array',
             'is_excluded' => 'boolean',
             'is_published' => 'boolean'
-        ];
+        ];*/
 
     public static function getCategoryTreeByName($name)
     {
