@@ -824,7 +824,7 @@ private function readXlsx($path)
     }*/
 
 
-public function importCSV(Request $request) 
+/*public function importCSV(Request $request) 
 {
     $request->validate([
         'csv_file' => 'required|mimes:csv,txt,xlsx'
@@ -836,24 +836,13 @@ public function importCSV(Request $request)
     // ---- Default JSON structures ----
     $jsonDefaults = [
         'meta' => [
-            "meta_title" => "",
-            "meta_description" => "",
-            "meta_keywords" => ""
+           
         ],
         'tooltip' =>[
-            "tooltip" => "",
-            "validation" => "",
-            "description" => ""
+            
         ],
         'validation' =>[
-            "product_type" => null,
-            "value" => null,
-            "conversion_rate" => null,
-            "theme" => null,
-            "service_duration" => null,
-            "service_area" => null,
-            "event_date" => null,
-            "event_location" => null
+            
         ],
         'seo' => [],
         'advanced' => [],
@@ -913,9 +902,9 @@ public function importCSV(Request $request)
 /**
  * ✅ Normalize Row
  */
-private function normalizeRow($row, $jsonDefaults)
+/*private function normalizeRow($row, $jsonDefaults)
 {
-    return [
+    $normalized = [
         'name'              => $row['name'] ?? null,
         'position'          => isset($row['position']) ? (int)$row['position'] : 0,
         'parent_id'         => isset($row['parent_id']) ? (int)$row['parent_id'] : 0,
@@ -923,33 +912,32 @@ private function normalizeRow($row, $jsonDefaults)
         'status'            => isset($row['status']) ? strtolower(trim($row['status'])) : 'active',
         'image'             => $row['image'] ?? null,
         'icon'              => $row['icon'] ?? null,
-
-        // is_protected → sirf integer flag
         'is_protected'      => isset($row['is_protected']) ? (int)$row['is_protected'] : 0,
-
         'label'             => $row['label'] ?? null,
-        'label_json'        => $row['label_json'] ?? $jsonDefaults['label_json'],
-        'meta'              => $row['meta'] ?? $jsonDefaults['meta'],
-        'display'           => $row['display'] ?? $jsonDefaults['display'],
-        'messages'          => $row['messages'] ?? $jsonDefaults['messages'],
-        'notifications'     => $row['notifications'] ?? $jsonDefaults['notifications'],
-        'group_view'        => $row['group_view'] ?? $jsonDefaults['group_view'],
-        'price_list'        => $row['price_list'] ?? $jsonDefaults['price_list'],
-        'seo'               => $row['seo'] ?? $jsonDefaults['seo'],
-        'advanced'          => $row['advanced'] ?? $jsonDefaults['advanced'],
-        'subscription_plans'=> $row['subscription_plans'] ?? $jsonDefaults['subscription_plans'],
-
         'code'              => $row['code'] ?? null,
-
         'is_excluded'       => isset($row['is_excluded']) ? (int)$row['is_excluded'] : 0,
         'is_published'      => isset($row['is_published']) ? (int)$row['is_published'] : 0,
     ];
+
+    // ✅ Handle JSON fields here itself
+    foreach ($jsonDefaults as $jsonCol => $default) {
+        $val = $row[$jsonCol] ?? $default;
+
+        if ($val === null || $val === '' || $val === 'null' || $val === '[]' || $val === '{}') {
+            $normalized[$jsonCol] = null;   // null बना दो
+        } else {
+            $normalized[$jsonCol] = $val;   // बाकी value as-is
+        }
+    }
+
+    return $normalized;
 }
+
 
 /**
  * ✅ Save Row
  */
-private function saveRow($rowData, $jsonDefaults, $boolFields)
+/*private function saveRow($rowData, $jsonDefaults, $boolFields)
 {
     $dataToInsert = [];
 
@@ -962,20 +950,15 @@ private function saveRow($rowData, $jsonDefaults, $boolFields)
 
         // JSON fields
         if (array_key_exists($col, $jsonDefaults)) {
-            if ($value === null || $value === '' || $value === 'null' || $value === '[]' || $value === '{}') {
-                $dataToInsert[$col] = null; // empty → NULL
+            if ($value === null) {
+                $dataToInsert[$col] = null;
+            } elseif (is_array($value)) {
+                $dataToInsert[$col] = json_encode($value, JSON_UNESCAPED_UNICODE);
             } else {
-                if (is_array($value)) {
-                    $dataToInsert[$col] = json_encode($value, JSON_UNESCAPED_UNICODE);
-                } else {
-                    // check if valid JSON
-                    json_decode($value);
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        $dataToInsert[$col] = $value; // already valid JSON
-                    } else {
-                        $dataToInsert[$col] = json_encode([$value], JSON_UNESCAPED_UNICODE);
-                    }
-                }
+                json_decode($value);
+                $dataToInsert[$col] = (json_last_error() === JSON_ERROR_NONE)
+                    ? $value
+                    : json_encode([$value], JSON_UNESCAPED_UNICODE);
             }
             continue;
         }
@@ -983,9 +966,133 @@ private function saveRow($rowData, $jsonDefaults, $boolFields)
         // Normal fields
         $dataToInsert[$col] = ($value === '' ? null : $value);
     }
-
+   dd($dataToInsert);
     Category::create($dataToInsert);
-}
+}*/
+public function importCSV(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|mimes:csv,txt,xlsx'
+        ]);
+
+        $file = $request->file('csv_file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // ---- Default JSON structures ----
+        $jsonDefaults = [
+            'meta' => null,
+            'tooltip' => [],
+            'validation' => [
+                "product_type" => null,
+                "value" => null,
+                "conversion_rate" => null,
+                "theme" => null,
+                "service_duration" => null,
+                "service_area" => null,
+                "event_date" => null,
+                "event_location" => null
+            ],
+            'seo' => null,
+            'advanced' => null,
+            'subscription_plans' => null,
+            'messages' => null,
+            'notifications' => null,
+            'price_list' => null,
+            'label_json' => null,
+            'display' => null,
+            'group_view' => null,
+        ];
+
+        // ---- Boolean fields ----
+        $boolFields = ['is_excluded', 'is_published', 'is_protected'];
+
+        $rows = [];
+
+        // ---- CSV / TXT ----
+        if (in_array($extension, ['csv','txt'])) {
+            $data = array_map('str_getcsv', file($file->getRealPath()));
+            $header = array_map('trim', array_shift($data));
+            foreach ($data as $row) {
+                $row = array_slice($row, 0, count($header));
+                $row = array_pad($row, count($header), null);
+                $rows[] = array_combine($header, $row);
+            }
+        }
+
+        // ---- XLSX ----
+        elseif ($extension === 'xlsx') {
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, true, true, true);
+
+            $header = array_map('trim', array_values($data[1]));
+            unset($data[1]);
+
+            foreach ($data as $row) {
+                $rowValues = array_values($row);
+                $row = array_combine($header, $rowValues);
+                $rows[] = $row;
+            }
+        }
+
+        // ---- Process & Save Rows ----
+        foreach ($rows as $row) {
+            $rowData = $this->normalizeRow($row, $jsonDefaults, $boolFields);
+            if (!empty($rowData['name'])) {
+                $this->saveRow($rowData);
+            }
+        }
+
+        return back()->with('success', 'File imported successfully!');
+    }
+
+    /**
+     * ✅ Normalize Row
+     */
+    private function normalizeRow($row, $jsonDefaults, $boolFields)
+    {
+        $normalized = [
+            'name'        => $row['name'] ?? null,
+            'position'    => isset($row['position']) ? (int)$row['position'] : 0,
+            'parent_id'   => isset($row['parent_id']) ? (int)$row['parent_id'] : 0,
+            'level'       => isset($row['level']) ? (int)$row['level'] : 0,
+            'status'      => isset($row['status']) ? strtolower(trim($row['status'])) : 'active',
+            'image'       => $row['image'] ?? null,
+            'icon'        => $row['icon'] ?? null,
+            'is_protected'=> isset($row['is_protected']) ? (int)$row['is_protected'] : 0,
+            'label'       => $row['label'] ?? null,
+            'code'        => $row['code'] ?? null,
+            'is_excluded' => isset($row['is_excluded']) ? (int)$row['is_excluded'] : 0,
+            'is_published'=> isset($row['is_published']) ? (int)$row['is_published'] : 0,
+        ];
+
+        // ✅ JSON fields clean
+        foreach ($jsonDefaults as $jsonCol => $default) {
+            $val = $row[$jsonCol] ?? $default;
+            if ($val === null || $val === '' || $val === 'null' || $val === '[]' || $val === '{}') {
+                $normalized[$jsonCol] = null;
+            } else {
+                // अगर string है और valid JSON है तो decode कर दो
+                if (is_string($val)) {
+                    $decoded = json_decode($val, true);
+                    $normalized[$jsonCol] = (json_last_error() === JSON_ERROR_NONE) ? $decoded : [$val];
+                } else {
+                    $normalized[$jsonCol] = $val;
+                }
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * ✅ Save Row
+     */
+    private function saveRow($rowData)
+    {
+        // casts की वजह से अब Laravel खुद JSON encode करेगा
+        Category::create($rowData);
+    }
 
 //export the data in excel or csv file 
 public function  export($type = 'csv')

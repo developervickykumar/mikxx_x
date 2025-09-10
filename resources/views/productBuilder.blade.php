@@ -505,11 +505,17 @@
     </div>
 </div>
 
-<div class="modal fade" id="previewModal" aria-hidden="true" tabindex="-1">
+
+
+
+
+
+
+<!--<div class="modal fade" id="previewModal" aria-hidden="true" tabindex="-1">
   <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
     <div class="modal-content">
       
-      <!-- Modal Header -->
+      <!-- Modal Header 
       <div class="modal-header">
         <h5 class="modal-title">
           <span id="previewFormName">Form Preview</span> - 
@@ -524,21 +530,75 @@
         <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
       </div>
       
-      <!-- Modal Body -->
+      <!-- Modal Body 
       <div class="modal-body">
-        <div id="formPreviewContent" class="p-3"></div>
+             <form id="dynamicForm" method="POST" action="{{ route('forms.store') }}">
+          @csrf
+
+          <!-- hidden for form name/slug/viewType 
+          <input type="hidden" name="name" id="formNameInput">
+          <input type="hidden" name="slug" id="formSlugInput">
+          <input type="hidden" name="view_type" id="viewTypeInput">
+
+          <!-- all dynamic fields will be inserted here 
+          <div id="formPreviewContent" class="p-3"></div>
+        </form>
       </div>
       
-      <!-- Modal Footer -->
+      <!-- Modal Footer 
       <div class="modal-footer">
         <button id="prevStepBtn" class="btn btn-secondary">Prev</button>
         <button id="nextStepBtn" class="btn btn-primary">Next</button>
-        <button id="saveFormBtn" class="btn btn-success">Save</button>
+        <button id="saveFormBtn" type="submit" class="btn btn-success">
+          Save
+        </button>
       </div>
+</form>
+    </div>
+  </div>
+</div>-->
+<div class="modal fade" id="previewModal" aria-hidden="true" tabindex="-1">
+  <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <span id="previewFormName">Form Preview</span> - 
+          <span id="previewGroupName"></span>
+        </h5>
+        <select id="viewTypeSelect" class="form-control form-select ms-3 w-50">
+          <option value="multi-step">Multi-Step</option>
+          <option value="horizontal-tab">Horizontal Tabs</option>
+          <option value="vertical-tab">Vertical Tabs</option>
+          <option value="accordion">Accordion</option>
+        </select>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal Body + Form -->
+      <form id="dynamicForm" method="POST" action="{{ route('forms.store') }}">
+        @csrf
+        <input type="hidden" name="name" id="formNameInput">
+        <input type="hidden" name="slug" id="formSlugInput">
+        <input type="hidden" name="view_type" id="viewTypeInput">
+
+        <div class="modal-body">
+          <div id="formPreviewContent" class="p-3"></div>
+        </div>
+
+        <!-- Modal Footer (form के अंदर रखा गया) -->
+        <div class="modal-footer">
+          <button id="prevStepBtn" type="button" class="btn btn-secondary">Prev</button>
+          <button id="nextStepBtn" type="button" class="btn btn-primary">Next</button>
+          <button id="saveFormBtn" type="submit" class="btn btn-success">Save</button>
+        </div>
+      </form>
 
     </div>
   </div>
 </div>
+
 
 <script>
 $(document).on('click', '.open-share-modal', function() {
@@ -939,6 +999,24 @@ function showFormPreview(steps) {
     applyFieldLayout(cols, "preview");
 }
 
+// -------------------- Wrap Field --------------------
+function wrapField(label, html, stepIndex, fieldIndex, mode, extraData = {}) {
+    const { type = 'text', group = 'basic', options = [] } = extraData;
+
+    return `
+        <div class="mb-3 border rounded p-2">
+            <label class="form-label">${label}</label>
+            ${html}
+
+            <!-- Hidden inputs for backend -->
+            <input type="hidden" name="fields[${fieldIndex}][label]" value="${label}">
+            <input type="hidden" name="fields[${fieldIndex}][type]" value="${type}">
+            <input type="hidden" name="fields[${fieldIndex}][group]" value="${group}">
+            <input type="hidden" name="fields[${fieldIndex}][options]" value='${JSON.stringify(options)}'>
+        </div>
+    `;
+}
+
 
 
 function buildFormPreview(steps, wrapper){
@@ -1001,6 +1079,7 @@ function buildFormPreview(steps, wrapper){
                         `;
                     }).join('');
                 tabContent += wrapField(name, radios, i, idx);
+    
             } else if (func === 'files' || func === 'presentation') {
                 tabContent += wrapField(name,
                     `<input class="form-control" type="file" name="${safeName}">`, i, idx);
@@ -1136,7 +1215,7 @@ function buildFormPreview(steps, wrapper){
     }
 
    else if (viewType === "multi-step") {
-    html = `
+    html = ` 
         <div id="multiStepForm">
             ${steps.map((s, i) => {
                 let tabContent = '';
@@ -1283,6 +1362,7 @@ function buildFormPreview(steps, wrapper){
                 `;
             }).join('')}
         </div>
+    
     `;
 
     // step navigation binding
@@ -1304,8 +1384,9 @@ function buildFormPreview(steps, wrapper){
     }, 100);
 }
 
+
     else if (viewType === "accordion") {
-    html = `
+    html = ` 
         <div class="accordion" id="previewAccordion">
             ${steps.map((s, i) => {
                 let tabContent = '';
@@ -1460,6 +1541,7 @@ function buildFormPreview(steps, wrapper){
         <div class="text-end mt-3">
             <button type="submit" class="btn btn-success">Submit</button>
         </div>
+        
     `;
 }
 
@@ -1516,19 +1598,8 @@ function applyFieldLayout(columns, mode = "builder") {
     });
 }
 
-// ------------------------ EVENT BINDINGS ------------------------
 
-/*document.getElementById("contentLayoutSelector").addEventListener("change", function () {
-    const cols = parseInt(this.value);
-    applyFieldLayout(cols, "preview");
-});
 
-document.addEventListener("shown.bs.tab", function (e) {
-    if (e.target.closest("#previewTabs")) {
-        const cols = parseInt(document.getElementById("contentLayoutSelector").value || 1);
-        applyFieldLayout(cols, "preview");
-    }
-});*/
 document.addEventListener("shown.bs.tab", function (e) {
     if (e.target.closest("#previewDynamicForm")) {
         const cols = parseInt(document.getElementById("contentLayoutSelector")?.value || 1);
@@ -1545,6 +1616,7 @@ function wrapField(label, html, stepIndex, fieldIndex, mode) {
         </div>
     `;
 }
+
 
 function renderPreviewStep(steps, stepIndex) {
     const tabs = document.querySelectorAll("#previewTabs .nav-link");
@@ -1563,10 +1635,12 @@ function renderPreviewStep(steps, stepIndex) {
     // Buttons visibility
     document.getElementById("prevStepBtn").style.display = stepIndex > 0 ? "inline-block" : "none";
     document.getElementById("nextStepBtn").style.display = stepIndex < steps.length - 1 ? "inline-block" : "none";
-    document.getElementById("saveFormBtn").style.display = stepIndex === steps.length - 1 ? "inline-block" : "none";
+    document.getElementById("saveFormBtn").style.display = stepIndex < steps.length - 1 ? "inline-block" : "none";
 }
 
-
+document.getElementById("saveFormBtn").addEventListener("click", function () {
+  document.getElementById("dynamicForm").submit();
+});
 // Event listeners for cascading dropdowns
 ['level1', 'level2', 'level3'].forEach((id, idx) => {
     document.getElementById(id).addEventListener('change', function() {
@@ -1587,6 +1661,13 @@ function renderPreviewStep(steps, stepIndex) {
                 });
         }
     });
+});
+document.getElementById("formNameInput").value = formName;
+document.getElementById("formSlugInput").value = formName.toLowerCase().replace(/\s+/g, '-');
+
+// viewTypeSelect change होते ही hidden input update हो
+document.getElementById("viewTypeSelect").addEventListener("change", function() {
+  document.getElementById("viewTypeInput").value = this.value;
 });
 
 function showEmbed() {
